@@ -1,0 +1,5 @@
+# JetBrains project
+.idea/
+
+# Byte-compiled
+*.py[cod]
