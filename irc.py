@@ -2,6 +2,7 @@ import tornado
 import tornado.iostream
 import socket
 import ssl
+import inspect
 
 
 class IRC(object):
@@ -26,6 +27,11 @@ class IRC(object):
         self.encoding = encoding
         self.__lines = [b'']
         self.__nickidx = 0
+        self.__handlers = {
+            b'PING': self.__ping,
+            b'433': self.__nick_in_use,
+            b'372': self.__motd
+        }
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 
@@ -82,10 +88,7 @@ class IRC(object):
         for line in self.__lines:
             if line != b'':
                 response = line.split(b':')
-                if b'' in response: response.remove(b'')
-
-                # Get the response message
-                message = b''.join(response[1:])
+                response = [x for x in response if x is not b'']
 
                 # Get the response code
                 code = response[0].split(b' ')
@@ -94,17 +97,32 @@ class IRC(object):
                 else:
                     code = code[1].strip()
 
-                if code == b'ERROR':
-                    pass
-                elif code == b'PING':
-                    ping = line.split(b' ')
-                    server1 = ping[1]
-                    server2 = ping[2] if len(ping) == 3 else None
-                    self.__pong(server1, server2)
-                elif code == b'433':
-                        self.__nick_in_use()
+                try:
+                    handler = self.__handlers[code]
+                    params = len(inspect.signature(handler).parameters)
+                    if params == 0:
+                        handler()
+                    elif params == 1:
+                        handler(line)
+                except KeyError:
+                    # print('Unhandled - Code %s' % code.decode(self.encoding))
+                    message = b''.join(response[1:])
+                    print('(Unhandled) Code: %s, %s' % (code, message.decode(self.encoding)))
 
-                print('Code: %s, %s' % (code, message.decode(self.encoding)))
+    def motd(self, message):
+        """
+        MOTD received event
+        :param message: Line of MOTD
+        """
+        pass
+
+    def ping(self, server1, server2):
+        """
+        PING received event
+        :param server1: Originating server
+        :param server2: Forwarding server
+        """
+        pass
 
     def __auth(self):
         """
@@ -117,23 +135,37 @@ class IRC(object):
         self.send('NICK %s' % nick)
         self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
 
-    def __nick_in_use(self):
+    def __nick_in_use(self, data):
         """
         Try another nick
         """
         self.__nickidx += 1
         self.__auth()
 
-    def __pong(self, server1, server2):
+    def __ping(self, data):
         """
-        Send PONG response
-        :param server1: Originating server
-        :param server2: Forwarding server
+        Ping event handler
+        :param data:
         """
+        ping = data.split(b' ')
+        server1 = ping[1]
+        server2 = ping[2] if len(ping) == 3 else None
+
         if server2:
             self.send(b'PONG %s %s' % (server1, server2))
         else:
             self.send(b'PONG %s' % server1)
+        self.ping(server1.decode(self.encoding), server2.decode(self.encoding))
+
+    def __motd(self, data):
+        """
+        MOTD hanlder
+        :param data: MOTD line
+        """
+        data = data.split(b':')
+        data = [x for x in data if x is not b'']
+        data = b''.join(data[1:])
+        self.motd(data.decode(self.encoding))
 
     def closed(self, data):
         pass
