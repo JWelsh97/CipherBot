@@ -55,7 +55,6 @@ class IRC(object):
         """
         Split received data into lines
         :param data: Bytes received
-        :return:
         """
         # Inspircd resends lines that came through incomplete
         # other ircd's have not been tested.
