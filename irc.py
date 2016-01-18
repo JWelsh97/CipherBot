@@ -85,8 +85,7 @@ class IRC(object):
                 if b'' in response: response.remove(b'')
 
                 # Get the response message
-                message = response[1:]
-                message = b''.join(message)
+                message = b''.join(response[1:])
 
                 # Get the response code
                 code = response[0].split(b' ')
