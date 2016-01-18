@@ -169,3 +169,4 @@ class IRC(object):
 
     def closed(self, data):
         pass
+
