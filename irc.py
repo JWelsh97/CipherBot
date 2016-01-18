@@ -8,10 +8,21 @@ class IRC(object):
     def __init__(self, host: str, port: int, nicks: list, pwd: str,
                  use_ssl: bool=False, ssl_options: ssl.SSLContext=None,
                  encoding: str='utf-8'):
+        """
+        Asynchronous IRC client
+        :param host: Server address
+        :param port: IRC Port
+        :param nicks: List of nicknames to try
+        :param pwd: NickServ password
+        :param use_ssl: Enable/Disable SSL
+        :param ssl_options: SSLContext object
+        :param encoding: Character encoding to use
+        """
         self.host = host
         self.port = port
         self.nicks = nicks
         self.pwd = pwd
+        self.ssl = use_ssl
         self.encoding = encoding
         self.__lines = [b'']
         self.__nickidx = 0
@@ -21,6 +32,7 @@ class IRC(object):
         if use_ssl:
             if not ssl_options:
                 ssl_options = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+                # IRC often has unsigned certs, by default do not verify
                 ssl_options.verify_mode = ssl.CERT_NONE
             sock = ssl.wrap_socket(sock, do_handshake_on_connect=False)
             self.__stream = tornado.iostream.SSLIOStream(sock, ssl_options=ssl_options)
@@ -85,17 +97,14 @@ class IRC(object):
 
                 if code == b'ERROR':
                     pass
-                # Respond to ping
                 elif code == b'PING':
                     ping = line.split(b' ')
                     server1 = ping[1]
                     server2 = ping[2] if len(ping) == 3 else None
                     self.__pong(server1, server2)
-                else:
-                    if code == b'433':
+                elif code == b'433':
                         self.__nick_in_use()
 
-                # print('Code: %s, %s' % (code, line.decode(self.encoding)))
                 print('Code: %s, %s' % (code, message.decode(self.encoding)))
 
     def __auth(self):
