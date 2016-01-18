@@ -33,7 +33,7 @@ class IRC(object):
                             server_hostname=self.host)
 
     def initial_auth(self):
-        self.auth()
+        self.__auth()
         self.stream.read_until_close(self.closed, self.route)
 
     def send(self, data: str):
@@ -98,7 +98,7 @@ class IRC(object):
                 # print('Code: %s, %s' % (code, line.decode(self.encoding)))
                 print('Code: %s, %s' % (code, message.decode(self.encoding)))
 
-    def auth(self):
+    def __auth(self):
         if self.__nickidx < len(self.nicks):
             nick = self.nicks[self.__nickidx]
         else:
@@ -112,7 +112,7 @@ class IRC(object):
         :return:
         """
         self.__nickidx += 1
-        self.auth()
+        self.__auth()
 
     def pong(self, server1, server2):
         """
