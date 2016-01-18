@@ -10,10 +10,12 @@ class IRC(object):
                  encoding: str='utf-8'):
         self.host = host
         self.port = port
+        self.server = None
         self.nicks = nicks
         self.pwd = pwd
         self.encoding = encoding
         self.__lines = [b'']
+        self.__nickidx = 0
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 
@@ -27,17 +29,16 @@ class IRC(object):
             self.stream = tornado.iostream.IOStream(sock)
 
         self.stream.connect((self.host, self.port),
-                            self.auth,
+                            self.initial_auth,
                             server_hostname=self.host)
 
-    def auth(self):
-        self.send('NICK %s' % self.nicks[0])
-        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
+    def initial_auth(self):
+        self.auth()
         self.stream.read_until_close(self.closed, self.route)
 
     def send(self, data: str):
         """
-        Write data to stream
+        Write to stream
         :param data: String to send
         :return:
         """
@@ -55,22 +56,70 @@ class IRC(object):
         :param data: Bytes received
         :return:
         """
+        # Inspircd resends lines that came through incomplete
+        # other ircd's have not been tested.
         data = data.split(b'\r\n')
         self.__lines = data
 
     def route(self, data):
+        """
+        Monitor incoming data and dispatch it to the proper methods
+        :param data: Raw byte array
+        """
         self.recv(data)
         for line in self.__lines:
             if line != b'':
+                response = line.split(b':')
+                if b'' in response: response.remove(b'')
+
+                # Get the response message
+                message = response[1:]
+                message = b''.join(message)
+
+                # Get the response code
+                code = response[0].split(b' ')
+                if len(code) <= 2:
+                    code = response[0].strip()
+                else:
+                    code = code[1].strip()
+
+                if code == b'ERROR':
+                    pass
                 # Respond to ping
-                if line.startswith(b'PING :'):
+                elif code == b'PING':
                     ping = line.split(b' ')
                     server1 = ping[1]
                     server2 = ping[2] if len(ping) == 3 else None
                     self.pong(server1, server2)
-                print(line.decode(self.encoding))
+                else:
+                    if code == b'433':
+                        self.__nick_in_use()
+
+                # print('Code: %s, %s' % (code, line.decode(self.encoding)))
+                print('Code: %s, %s' % (code, message.decode(self.encoding)))
+
+    def auth(self):
+        if self.__nickidx < len(self.nicks):
+            nick = self.nicks[self.__nickidx]
+        else:
+            nick = self.nicks[0] + str(self.__nickidx - len(self.nicks))
+        self.send('NICK %s' % nick)
+        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
+
+    def __nick_in_use(self):
+        """
+
+        :return:
+        """
+        self.__nickidx += 1
+        self.auth()
 
     def pong(self, server1, server2):
+        """
+        Send PONG response
+        :param server1:
+        :param server2:
+        """
         if server2:
             self.send(b'PONG %s %s' % (server1, server2))
         else:
