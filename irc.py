@@ -10,7 +10,6 @@ class IRC(object):
                  encoding: str='utf-8'):
         self.host = host
         self.port = port
-        self.server = None
         self.nicks = nicks
         self.pwd = pwd
         self.encoding = encoding
@@ -24,17 +23,17 @@ class IRC(object):
                 ssl_options = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
                 ssl_options.verify_mode = ssl.CERT_NONE
             sock = ssl.wrap_socket(sock, do_handshake_on_connect=False)
-            self.stream = tornado.iostream.SSLIOStream(sock, ssl_options=ssl_options)
+            self.__stream = tornado.iostream.SSLIOStream(sock, ssl_options=ssl_options)
         else:
-            self.stream = tornado.iostream.IOStream(sock)
+            self.__stream = tornado.iostream.IOStream(sock)
 
-        self.stream.connect((self.host, self.port),
-                            self.initial_auth,
-                            server_hostname=self.host)
+        self.__stream.connect((self.host, self.port),
+                              self.__initial_auth,
+                              server_hostname=self.host)
 
-    def initial_auth(self):
+    def __initial_auth(self):
         self.__auth()
-        self.stream.read_until_close(self.closed, self.route)
+        self.__stream.read_until_close(self.closed, self.__route)
 
     def send(self, data: str):
         """
@@ -46,11 +45,11 @@ class IRC(object):
             data = data.encode(self.encoding)
 
         if type(data) is bytes:
-            self.stream.write(data + b'\r\n')
+            self.__stream.write(data + b'\r\n')
         else:
             raise TypeError('Data must be a byte or string')
 
-    def recv(self, data):
+    def __recv(self, data):
         """
         Split received data into lines
         :param data: Bytes received
@@ -61,12 +60,12 @@ class IRC(object):
         data = data.split(b'\r\n')
         self.__lines = data
 
-    def route(self, data):
+    def __route(self, data):
         """
         Monitor incoming data and dispatch it to the proper methods
         :param data: Raw byte array
         """
-        self.recv(data)
+        self.__recv(data)
         for line in self.__lines:
             if line != b'':
                 response = line.split(b':')
@@ -90,7 +89,7 @@ class IRC(object):
                     ping = line.split(b' ')
                     server1 = ping[1]
                     server2 = ping[2] if len(ping) == 3 else None
-                    self.pong(server1, server2)
+                    self.__pong(server1, server2)
                 else:
                     if code == b'433':
                         self.__nick_in_use()
@@ -114,7 +113,7 @@ class IRC(object):
         self.__nickidx += 1
         self.__auth()
 
-    def pong(self, server1, server2):
+    def __pong(self, server1, server2):
         """
         Send PONG response
         :param server1:
