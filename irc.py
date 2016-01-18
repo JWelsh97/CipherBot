@@ -32,6 +32,9 @@ class IRC(object):
                               server_hostname=self.host)
 
     def __initial_auth(self):
+        """
+        Attempt to authenticate and start listening for data
+        """
         self.__auth()
         self.__stream.read_until_close(self.closed, self.__route)
 
@@ -39,7 +42,6 @@ class IRC(object):
         """
         Write to stream
         :param data: String to send
-        :return:
         """
         if type(data) is str:
             data = data.encode(self.encoding)
@@ -98,6 +100,9 @@ class IRC(object):
                 print('Code: %s, %s' % (code, message.decode(self.encoding)))
 
     def __auth(self):
+        """
+        Send auth data
+        """
         if self.__nickidx < len(self.nicks):
             nick = self.nicks[self.__nickidx]
         else:
@@ -107,8 +112,7 @@ class IRC(object):
 
     def __nick_in_use(self):
         """
-
-        :return:
+        Try another nick
         """
         self.__nickidx += 1
         self.__auth()
@@ -116,8 +120,8 @@ class IRC(object):
     def __pong(self, server1, server2):
         """
         Send PONG response
-        :param server1:
-        :param server2:
+        :param server1: Originating server
+        :param server2: Forwarding server
         """
         if server2:
             self.send(b'PONG %s %s' % (server1, server2))
