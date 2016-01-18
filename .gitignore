@@ -3,3 +3,6 @@
 
 # Byte-compiled
 *.py[cod]
+
+# Virtual Environment
+.venv
