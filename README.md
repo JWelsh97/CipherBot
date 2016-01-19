@@ -8,3 +8,4 @@ Help queue and general IRC bot
 
 ## Installation
 git clone git@gitlab.ratsfor.me:TGIF/Cipher.git
+pip install -r requirements.txt
