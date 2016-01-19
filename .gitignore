@@ -9,3 +9,6 @@
 
 # Python cache
 __pycache__/
+
+# Project config
+config.yaml
