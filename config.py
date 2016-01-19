@@ -10,4 +10,3 @@ def read_config():
     with open(os.path.join(path, 'config.yaml'), 'r') as f:
         conf = yaml.load(f)
     return conf
-
