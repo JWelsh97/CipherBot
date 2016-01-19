@@ -6,7 +6,22 @@ def read_config():
     """
     Reads the YAML config file
     """
+    default = {
+        'host': 'affinity.pw',
+        'port': 6697,
+        'nicks': ['Cipher', 'Cipher_', 'Cipher__'],
+        'password': '',
+        'ssl': True
+    }
     path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(path, 'config.yaml'), 'r') as f:
         conf = yaml.load(f)
-    return conf
+
+    for key in default:
+        if key in conf:
+            default[key] = conf[key]
+
+    if not isinstance(default['nicks'], list):
+        default['nicks'] = [default['nicks']]
+
+    return default
