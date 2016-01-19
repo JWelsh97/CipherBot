@@ -1,5 +1,5 @@
-irc_host: "affinity.pw"
+host: "affinity.pw"
 port: 6697
-nickname: "Cipher"
+nickname: Cipher, Cipher_, Cipher__
 password: ""
-ssl: True # or False
+ssl: True
