@@ -25,3 +25,4 @@ def read_config():
         default['nickname'] = [default['nickname']]
 
     return default
+
