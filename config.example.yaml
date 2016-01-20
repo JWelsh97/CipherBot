@@ -1,5 +1,5 @@
 host: 'affinity.pw'
 port: 6697
-nickname: ['Cipher', 'Cipher_', 'Cipher__']
+nickname: Cipher, Cipher_, Cipher__
 password: ''
 ssl: True
