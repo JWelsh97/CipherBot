@@ -91,7 +91,7 @@ class IRC(object):
                 idx = line.find(b' ')
                 prefix = line[1:idx]
 
-            line = line[:idx].split(b' :')
+            line = line[idx+1:].split(b' :')
             temp = line[0].split(b' ')
             command = temp[0]
             params = temp[1:]
