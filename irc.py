@@ -149,14 +149,14 @@ class IRC(object):
         :param data:
         """
         ping = data.split(b' ')
-        server1 = ping[1]
-        server2 = ping[2] if len(ping) == 3 else None
+        server1 = ping[1].decode(self.encoding)
+        server2 = ping[2].decode(self.encoding) if len(ping) == 3 else ''
 
         if server2:
-            self.send(b'PONG %s %s' % (server1, server2))
+            self.send('PONG %s %s' % (server1, server2))
         else:
-            self.send(b'PONG %s' % server1)
-        self.ping(server1.decode(self.encoding), server2.decode(self.encoding))
+            self.send('PONG %s' % server1)
+        self.ping(server1, server2)
 
     def __motd(self, data):
         """
