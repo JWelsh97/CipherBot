@@ -13,3 +13,6 @@ class Bot(IRC):
 
     def ping(self, server1, server2):
         print('PONG %s' % server1)
+
+    def notice(self, prefix, params, message):
+        print('%s: %s' % (prefix, message))

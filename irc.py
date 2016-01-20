@@ -28,6 +28,7 @@ class IRC(object):
         self.__nickidx = 0
         self.__handlers = {
             b'PING': self.__ping,
+            b'NOTICE': self.__notice,
             b'433': self.__nick_in_use,
             b'372': self.__motd
         }
@@ -127,10 +128,21 @@ class IRC(object):
 
     def __motd(self, message):
         """
-        MOTD hanlder
+        MOTD handler
         :param message: MOTD line
         """
         self.motd(message.decode(self.encoding))
+
+    def __notice(self, prefix, params, message):
+        """
+        Notice handler
+        :param params: Parameter list
+        :param message: Notice message
+        :return:
+        """
+        self.notice(prefix.decode(self.encoding),
+                    [p.decode(self.encoding) for p in params],
+                    message.decode(self.encoding))
 
     def send(self, data: str):
         """
@@ -160,5 +172,14 @@ class IRC(object):
         PING received event
         :param server1: Originating server
         :param server2: Forwarding server
+        """
+        pass
+
+    def notice(self, prefix, params, message):
+        """
+        Notice received event
+        :param params: Parameter list
+        :param message: Notice message
+        :return:
         """
         pass
