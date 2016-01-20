@@ -118,11 +118,11 @@ class IRC(object):
                     idx = line.find(b' ')
                     prefix = line[1:idx]
 
-                line = line[idx+1 if idx > 0 else idx:].split(b' :')
-                message = b''.join(line[1:])
-                line = line[0].split(b' ')
-                command = line[0]
-                params = line[1:]
+                irc_msg = line[idx+1 if idx > 0 else idx:].split(b' :')
+                message = b''.join(irc_msg[1:])
+                irc_msg = irc_msg[0].split(b' ')
+                command = irc_msg[0]
+                params = irc_msg[1:]
 
                 try:
                     handler = self.__handlers[command]
@@ -137,6 +137,7 @@ class IRC(object):
                     else:
                         handler()
                 except KeyError:
+                    print(line)
                     print('(Unhandled) Pfx: %s,Cmd: %s,Param: %s, Msg: %s' % (prefix, command, params, message))
 
     def motd(self, message):
