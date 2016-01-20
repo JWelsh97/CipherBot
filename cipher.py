@@ -10,4 +10,3 @@ if __name__ == '__main__':
               config['password'],
               config['ssl'])
     tornado.ioloop.IOLoop.instance().start()
-

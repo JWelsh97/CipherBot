@@ -25,7 +25,6 @@ class IRC(object):
         self.pwd = pwd
         self.ssl = use_ssl
         self.encoding = encoding
-        self.__lines = [b'']
         self.__nickidx = 0
         self.__handlers = {
             b'PING': self.__ping,
@@ -56,6 +55,86 @@ class IRC(object):
         self.__auth()
         self.__stream.read_until_close(self.closed, self.__route)
 
+    def __route(self, data):
+        """
+        Monitor incoming data and dispatch it to the proper methods
+        :param data: Raw byte array
+        """
+        data = data.split(b'\r\n')
+        prefix = b''
+        command = b''
+        params = b''
+        message = b''
+        idx = 0
+
+        for line in data:
+            if line:
+                if line.startswith(b':'):
+                    idx = line.find(b' ')
+                    prefix = line[1:idx]
+
+                irc_msg = line[idx+1 if idx > 0 else idx:].split(b' :')
+                message = b''.join(irc_msg[1:]).strip()
+                irc_msg = irc_msg[0].split(b' ')
+                command = irc_msg[0]
+                params = irc_msg[1:]
+
+                try:
+                    handler = self.__handlers[command]
+                    kwargs = inspect.signature(handler).parameters.keys()
+                    if len(inspect.signature(handler).parameters) > 0:
+                        irc_args = {'prefix': prefix,
+                                    'command': command,
+                                    'params': params,
+                                    'message': message}
+                        kwargs = {k: irc_args[k] for k in irc_args if k in kwargs}
+                        handler(**kwargs)
+                    else:
+                        handler()
+                except KeyError:
+                    print(line)
+                    print('(Unhandled) Pfx: %s,Cmd: %s,Param: %s, Msg: %s' % (prefix, command, params, message))
+
+    def __auth(self):
+        """
+        Send auth data
+        """
+        if self.__nickidx < len(self.nicks):
+            nick = self.nicks[self.__nickidx]
+        else:
+            nick = self.nicks[0] + str(self.__nickidx - len(self.nicks))
+        self.send('NICK %s' % nick)
+        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
+
+    def __nick_in_use(self):
+        """
+        Try another nick
+        """
+        self.__nickidx += 1
+        self.__auth()
+
+    def __ping(self, message):
+        """
+        Ping event handler
+        :param message:
+        """
+        ping = message.split(b' ')
+        server1 = ping[0].decode(self.encoding)
+        server2 = ping[1].decode(self.encoding) if len(ping) == 2 else ''
+
+        if server2:
+            self.send('PONG %s %s' % (server1, server2))
+        else:
+            self.send('PONG %s' % server1)
+        self.ping(server1, server2)
+
+    def __motd(self, message):
+        """
+        MOTD hanlder
+        :param message: MOTD line
+        """
+        self.motd(message.decode(self.encoding))
+
     def send(self, data: str):
         """
         Write to stream
@@ -67,47 +146,10 @@ class IRC(object):
         if type(data) is bytes:
             self.__stream.write(data + b'\r\n')
         else:
-            raise TypeError('Data must be a byte or string')
+            raise TypeError('Data must be bytes or string')
 
-    def __recv(self, data):
-        """
-        Split received data into lines
-        :param data: Bytes received
-        """
-        # Inspircd resends lines that came through incomplete
-        # other ircd's have not been tested.
-        data = data.split(b'\r\n')
-        self.__lines = data
-
-    def __route(self, data):
-        """
-        Monitor incoming data and dispatch it to the proper methods
-        :param data: Raw byte array
-        """
-        self.__recv(data)
-        for line in self.__lines:
-            if line != b'':
-                response = line.split(b':')
-                response = [x for x in response if x is not b'']
-
-                # Get the response code
-                code = response[0].split(b' ')
-                if len(code) <= 2:
-                    code = response[0].strip()
-                else:
-                    code = code[1].strip()
-
-                try:
-                    handler = self.__handlers[code]
-                    params = len(inspect.signature(handler).parameters)
-                    if params == 0:
-                        handler()
-                    elif params == 1:
-                        handler(line)
-                except KeyError:
-                    # print('Unhandled - Code %s' % code.decode(self.encoding))
-                    message = b''.join(response[1:])
-                    print('(Unhandled) Code: %s, %s' % (code, message.decode(self.encoding)))
+    def closed(self, data):
+        pass
 
     def motd(self, message):
         """
@@ -123,50 +165,3 @@ class IRC(object):
         :param server2: Forwarding server
         """
         pass
-
-    def __auth(self):
-        """
-        Send auth data
-        """
-        if self.__nickidx < len(self.nicks):
-            nick = self.nicks[self.__nickidx]
-        else:
-            nick = self.nicks[0] + str(self.__nickidx - len(self.nicks))
-        self.send('NICK %s' % nick)
-        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
-
-    def __nick_in_use(self, data):
-        """
-        Try another nick
-        """
-        self.__nickidx += 1
-        self.__auth()
-
-    def __ping(self, data):
-        """
-        Ping event handler
-        :param data:
-        """
-        ping = data.split(b' ')
-        server1 = ping[1]
-        server2 = ping[2] if len(ping) == 3 else None
-
-        if server2:
-            self.send(b'PONG %s %s' % (server1, server2))
-        else:
-            self.send(b'PONG %s' % server1)
-        self.ping(server1.decode(self.encoding), server2.decode(self.encoding))
-
-    def __motd(self, data):
-        """
-        MOTD hanlder
-        :param data: MOTD line
-        """
-        data = data.split(b':')
-        data = [x for x in data if x is not b'']
-        data = b''.join(data[1:])
-        self.motd(data.decode(self.encoding))
-
-    def closed(self, data):
-        pass
-

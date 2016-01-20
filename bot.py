@@ -11,3 +11,5 @@ class Bot(IRC):
     def motd(self, message):
         print(message)
 
+    def ping(self, server1, server2):
+        print('PONG %s' % server1)
