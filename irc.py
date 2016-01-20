@@ -165,7 +165,7 @@ class IRC(object):
         self.send('NICK %s' % nick)
         self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
 
-    def __nick_in_use(self, data):
+    def __nick_in_use(self):
         """
         Try another nick
         """
@@ -187,15 +187,12 @@ class IRC(object):
             self.send('PONG %s' % server1)
         self.ping(server1, server2)
 
-    def __motd(self, data):
+    def __motd(self, message):
         """
         MOTD hanlder
         :param data: MOTD line
         """
-        data = data.split(b':')
-        data = [x for x in data if x is not b'']
-        data = b''.join(data[1:])
-        self.motd(data.decode(self.encoding))
+        self.motd(message.decode(self.encoding))
 
     def closed(self, data):
         pass
