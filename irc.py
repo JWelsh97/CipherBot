@@ -62,9 +62,6 @@ class IRC(object):
         """
         data = data.split(b'\r\n')
         prefix = b''
-        command = b''
-        params = b''
-        message = b''
         idx = 0
 
         for line in data:
