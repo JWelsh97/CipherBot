@@ -119,7 +119,7 @@ class IRC(object):
                     prefix = line[1:idx]
 
                 irc_msg = line[idx+1 if idx > 0 else idx:].split(b' :')
-                message = b''.join(irc_msg[1:])
+                message = b''.join(irc_msg[1:]).strip()
                 irc_msg = irc_msg[0].split(b' ')
                 command = irc_msg[0]
                 params = irc_msg[1:]
@@ -193,7 +193,7 @@ class IRC(object):
         MOTD hanlder
         :param data: MOTD line
         """
-        self.motd(message.strip().decode(self.encoding))
+        self.motd(message.decode(self.encoding))
 
     def closed(self, data):
         pass
