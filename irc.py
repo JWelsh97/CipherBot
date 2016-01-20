@@ -192,7 +192,7 @@ class IRC(object):
         MOTD hanlder
         :param data: MOTD line
         """
-        self.motd(message.decode(self.encoding))
+        self.motd(message)
 
     def closed(self, data):
         pass
