@@ -10,4 +10,3 @@ class Bot(IRC):
 
     def motd(self, message):
         print(message)
-
