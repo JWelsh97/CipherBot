@@ -107,6 +107,7 @@ class IRC(object):
                 except KeyError:
                     # print('Unhandled - Code %s' % code.decode(self.encoding))
                     message = b''.join(response[1:])
+                    print(line.decode(self.encoding))
                     print('(Unhandled) Code: %s, %s' % (code, message.decode(self.encoding)))
 
     def motd(self, message):
