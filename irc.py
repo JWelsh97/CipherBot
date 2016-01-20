@@ -87,12 +87,12 @@ class IRC(object):
 
         for line in data:
             # Get prefix
-            if line[0] == b':':
-                idx = line.find(' ')
+            if line.startswith(b':'):
+                idx = line.find(b' ')
                 prefix = line[1:idx]
 
-            line = line[:idx].split(' :')[0]
-            temp = line[0].split(' ')
+            line = line[:idx].split(b' :')[0]
+            temp = line[0].split(b' ')
             command = temp[0]
             params = temp[1:]
             message = b''.join(line[1:])
