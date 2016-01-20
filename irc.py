@@ -55,19 +55,6 @@ class IRC(object):
         self.__auth()
         self.__stream.read_until_close(self.closed, self.__route)
 
-    def send(self, data: str):
-        """
-        Write to stream
-        :param data: String to send
-        """
-        if type(data) is str:
-            data = data.encode(self.encoding)
-
-        if type(data) is bytes:
-            self.__stream.write(data + b'\r\n')
-        else:
-            raise TypeError('Data must be a byte or string')
-
     def __route(self, data):
         """
         Monitor incoming data and dispatch it to the proper methods
@@ -108,21 +95,6 @@ class IRC(object):
                     print(line)
                     print('(Unhandled) Pfx: %s,Cmd: %s,Param: %s, Msg: %s' % (prefix, command, params, message))
 
-    def motd(self, message):
-        """
-        MOTD received event
-        :param message: Line of MOTD
-        """
-        pass
-
-    def ping(self, server1, server2):
-        """
-        PING received event
-        :param server1: Originating server
-        :param server2: Forwarding server
-        """
-        pass
-
     def __auth(self):
         """
         Send auth data
@@ -141,10 +113,10 @@ class IRC(object):
         self.__nickidx += 1
         self.__auth()
 
-    def __ping(self, command, message):
+    def __ping(self, message):
         """
         Ping event handler
-        :param data:
+        :param message:
         """
         ping = message.split(b' ')
         server1 = ping[0].decode(self.encoding)
@@ -159,10 +131,37 @@ class IRC(object):
     def __motd(self, message):
         """
         MOTD hanlder
-        :param data: MOTD line
+        :param message: MOTD line
         """
         self.motd(message.decode(self.encoding))
+
+    def send(self, data: str):
+        """
+        Write to stream
+        :param data: String to send
+        """
+        if type(data) is str:
+            data = data.encode(self.encoding)
+
+        if type(data) is bytes:
+            self.__stream.write(data + b'\r\n')
+        else:
+            raise TypeError('Data must be bytes or string')
 
     def closed(self, data):
         pass
 
+    def motd(self, message):
+        """
+        MOTD received event
+        :param message: Line of MOTD
+        """
+        pass
+
+    def ping(self, server1, server2):
+        """
+        PING received event
+        :param server1: Originating server
+        :param server2: Forwarding server
+        """
+        pass
