@@ -172,12 +172,12 @@ class IRC(object):
         self.__nickidx += 1
         self.__auth()
 
-    def __ping(self, data):
+    def __ping(self, command, message):
         """
         Ping event handler
         :param data:
         """
-        ping = data.split(b' ')
+        ping = message.split(b' ')
         server1 = ping[1].decode(self.encoding)
         server2 = ping[2].decode(self.encoding) if len(ping) == 3 else ''
 
