@@ -178,8 +178,8 @@ class IRC(object):
         :param data:
         """
         ping = message.split(b' ')
-        server1 = ping[1].decode(self.encoding)
-        server2 = ping[2].decode(self.encoding) if len(ping) == 3 else ''
+        server1 = ping[0].decode(self.encoding)
+        server2 = ping[1].decode(self.encoding) if len(ping) == 2 else ''
 
         if server2:
             self.send('PONG %s %s' % (server1, server2))

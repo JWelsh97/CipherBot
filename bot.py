@@ -9,7 +9,10 @@ class Bot(IRC):
         super().__init__(host, port, nicks, pwd, use_ssl, ssl_options, encoding)
 
     def motd(self, message):
-        print(message)
+        if message:
+            print(message)
+        else:
+            pass
 
     def ping(self, server1, server2):
         print('PONG %s' % server1)
