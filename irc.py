@@ -86,18 +86,19 @@ class IRC(object):
         idx = 0
 
         for line in data:
-            # Get prefix
-            if line.startswith(b':'):
-                idx = line.find(b' ')
-                prefix = line[1:idx]
+            if line:
+                # Get prefix
+                if line.startswith(b':'):
+                    idx = line.find(b' ')
+                    prefix = line[1:idx]
 
-            line = line[idx+1:].split(b' :')
-            message = b''.join(line[1:])
-            line = line[0].split(b' ')
-            command = line[0]
-            params = line[1:]
+                line = line[idx+1:].split(b' :')
+                message = b''.join(line[1:])
+                line = line[0].split(b' ')
+                command = line[0]
+                params = line[1:]
 
-            self.__lines.append((prefix, command, params, message))
+                self.__lines.append((prefix, command, params, message))
 
     def __route(self, data):
         """
