@@ -12,7 +12,7 @@ class Bot(IRC):
         if message:
             print(message)
         else:
-            pass
+            print('No message')
 
     def ping(self, server1, server2):
         print('PONG %s' % server1)
