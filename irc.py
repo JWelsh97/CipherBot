@@ -92,12 +92,12 @@ class IRC(object):
                 prefix = line[1:idx]
 
             line = line[idx+1:].split(b' :')
-            temp = line[0].split(b' ')
-            command = temp[0]
-            params = temp[1:]
             message = b''.join(line[1:])
+            line = line[0].split(b' ')
+            command = line[0]
+            params = line[1:]
 
-        self.__lines.append((prefix, command, params, message))
+            self.__lines.append((prefix, command, params, message))
 
     def __route(self, data):
         """
