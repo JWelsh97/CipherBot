@@ -25,7 +25,6 @@ class IRC(object):
         self.pwd = pwd
         self.ssl = use_ssl
         self.encoding = encoding
-        self.__lines = [b'']
         self.__nickidx = 0
         self.__handlers = {
             b'PING': self.__ping,
@@ -68,37 +67,6 @@ class IRC(object):
             self.__stream.write(data + b'\r\n')
         else:
             raise TypeError('Data must be a byte or string')
-
-    def __recv(self, data):
-        """
-        Split received data into lines
-        :param data: Bytes received
-        """
-        # Inspircd resends lines that came through incomplete
-        # other ircd's have not been tested.
-        self.__lines = []
-
-        data = data.split(b'\r\n')
-        prefix = b''
-        command = b''
-        params = b''
-        message = b''
-        idx = 0
-
-        for line in data:
-            if line:
-                # Get prefix
-                if line.startswith(b':'):
-                    idx = line.find(b' ')
-                    prefix = line[1:idx]
-
-                line = line[idx+1:].split(b' :')
-                message = b''.join(line[1:])
-                line = line[0].split(b' ')
-                command = line[0]
-                params = line[1:]
-
-                self.__lines.append((prefix, command, params, message))
 
     def __route(self, data):
         """
