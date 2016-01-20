@@ -105,35 +105,39 @@ class IRC(object):
         Monitor incoming data and dispatch it to the proper methods
         :param data: Raw byte array
         """
-        self.__recv(data)
-        for prefix, command, params, message in self.__lines:
-            print('Pfx: %s,Cmd: %s,Param: %s, Msg: %s' % (prefix, command, params, message))
+        data = data.split(b'\r\n')
+        prefix = b''
+        command = b''
+        params = b''
+        message = b''
+        idx = 0
 
-            """
-            if line != b'':
-                response = line.split(b':')
-                response = [x for x in response if x is not b'']
+        for line in data:
+            if line:
+                if line.startswith(b':'):
+                    idx = line.find(b' ')
+                    prefix = line[1:idx]
 
-                # Get the response code
-                code = response[0].split(b' ')
-                if len(code) <= 2:
-                    code = response[0].strip()
-                else:
-                    code = code[1].strip()
+                line = line[idx+1:].split(b' :')
+                message = b''.join(line[1:])
+                line = line[0].split(b' ')
+                command = line[0]
+                params = line[1:]
 
                 try:
-                    handler = self.__handlers[code]
-                    params = len(inspect.signature(handler).parameters)
-                    if params == 0:
+                    handler = self.__handlers[command]
+                    kwargs = inspect.signature(handler).parameters.keys()
+                    if len(inspect.signature(handler).parameters) > 0:
+                        irc_args = {'prefix': prefix,
+                                    'command': command,
+                                    'params': params,
+                                    'message': message}
+                        kwargs = {k: irc_args[k] for k in irc_args if k in kwargs}
+                        handler(**kwargs)
+                    else:
                         handler()
-                    elif params == 1:
-                        handler(line)
                 except KeyError:
-                    # print('Unhandled - Code %s' % code.decode(self.encoding))
-                    message = b''.join(response[1:])
-                    print(line.decode(self.encoding))
-                    print('(Unhandled) Code: %s, %s' % (code, message.decode(self.encoding)))
-            """
+                    print('(Unhandled) Pfx: %s,Cmd: %s,Param: %s, Msg: %s' % (prefix, command, params, message))
 
     def motd(self, message):
         """
