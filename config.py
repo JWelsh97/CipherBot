@@ -9,7 +9,7 @@ def read_config():
     default = {
         'host': 'affinity.pw',
         'port': 6697,
-        'nicks': ['Cipher', 'Cipher_', 'Cipher__'],
+        'nickname': ['Cipher', 'Cipher_', 'Cipher__'],
         'password': '',
         'ssl': True
     }
@@ -21,7 +21,7 @@ def read_config():
         if key in conf:
             default[key] = conf[key]
 
-    if not isinstance(default['nicks'], list):
-        default['nicks'] = [default['nicks']]
+    if not isinstance(default['nickname'], list):
+        default['nickname'] = [default['nickname']]
 
     return default
