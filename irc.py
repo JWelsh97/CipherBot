@@ -76,8 +76,28 @@ class IRC(object):
         """
         # Inspircd resends lines that came through incomplete
         # other ircd's have not been tested.
+        self.__lines = []
+
         data = data.split(b'\r\n')
-        self.__lines = data
+        prefix = b''
+        command = b''
+        params = b''
+        message = b''
+        idx = 0
+
+        for line in data:
+            # Get prefix
+            if line[0] == b':':
+                idx = line.find(' ')
+                prefix = line[1:idx]
+
+            line = line[:idx].split(' :')[0]
+            temp = line[0].split(' ')
+            command = temp[0]
+            params = temp[1:]
+            message = b''.join(line[1:])
+
+        self.__lines.append((prefix, command, params, message))
 
     def __route(self, data):
         """
