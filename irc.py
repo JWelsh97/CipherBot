@@ -105,7 +105,10 @@ class IRC(object):
         :param data: Raw byte array
         """
         self.__recv(data)
-        for line in self.__lines:
+        for prefix, command, params, message in self.__lines:
+            print('Pfx: %s,Cmd: %s,Param: %s, Msg: %s' % (prefix, command, params, message))
+
+            """
             if line != b'':
                 response = line.split(b':')
                 response = [x for x in response if x is not b'']
@@ -129,6 +132,7 @@ class IRC(object):
                     message = b''.join(response[1:])
                     print(line.decode(self.encoding))
                     print('(Unhandled) Code: %s, %s' % (code, message.decode(self.encoding)))
+            """
 
     def motd(self, message):
         """
