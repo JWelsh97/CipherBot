@@ -16,3 +16,7 @@ class Bot(IRC):
 
     def notice(self, prefix, params, message):
         print('%s: %s' % (prefix, message))
+
+    def privmsg(self, source, target, message):
+        user = source.split('!')[0]
+        print('%s | %s | %s' % (target, user, message))

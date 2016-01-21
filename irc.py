@@ -29,6 +29,7 @@ class IRC(object):
         self.__handlers = {
             b'PING': self.__ping,
             b'NOTICE': self.__notice,
+            b'PRIVMSG': self.__privmsg,
             b'433': self.__nick_in_use,
             b'372': self.__motd
         }
@@ -144,6 +145,18 @@ class IRC(object):
                     [p.decode(self.encoding) for p in params],
                     message.decode(self.encoding))
 
+    def __privmsg(self, prefix, params, message):
+        """
+        PRIVMSG event handler
+        :param prefix:
+        :param params:
+        :param message:
+        :return:
+        """
+        self.privmsg(prefix.decode(self.encoding),
+                     params[0].decode(self.encoding),
+                     message.decode(self.encoding, 'ignore'))
+
     def send(self, data: str):
         """
         Write to stream
@@ -180,6 +193,16 @@ class IRC(object):
         Notice received event
         :param params: Parameter list
         :param message: Notice message
+        :return:
+        """
+        pass
+
+    def privmsg(self, source, target, message):
+        """
+        PRIVMSG received event
+        :param source:
+        :param target:
+        :param message:
         :return:
         """
         pass
