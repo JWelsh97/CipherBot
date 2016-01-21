@@ -20,3 +20,6 @@ class Bot(IRC):
     def privmsg(self, source, target, message):
         user = source.split('!')[0]
         print('%s | %s | %s' % (target, user, message))
+
+    def logged_in(self):
+        print('Logged in!')

@@ -31,7 +31,9 @@ class IRC(object):
             b'NOTICE': self.__notice,
             b'PRIVMSG': self.__privmsg,
             b'433': self.__nick_in_use,
-            b'372': self.__motd
+            b'372': self.__motd,
+            b'376': self.__end_motd,
+            b'900': self.__logged_in
         }
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -52,9 +54,9 @@ class IRC(object):
 
     def __initial_auth(self):
         """
-        Attempt to authenticate and start listening for data
+        Start listening for data
         """
-        self.__auth()
+        self.__send_auth()
         self.__stream.read_until_close(self.closed, self.__route)
 
     def __route(self, data):
@@ -94,7 +96,7 @@ class IRC(object):
                     print(line)
                     print('(Unhandled) Pfx: %s,Cmd: %s,Param: %s, Msg: %s' % (prefix, command, params, message))
 
-    def __auth(self):
+    def __send_auth(self):
         """
         Send auth data
         """
@@ -104,13 +106,15 @@ class IRC(object):
             nick = self.nicks[0] + str(self.__nickidx - len(self.nicks))
         self.send('NICK %s' % nick)
         self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
+        if self.pwd:
+            self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
 
     def __nick_in_use(self):
         """
         Try another nick
         """
         self.__nickidx += 1
-        self.__auth()
+        self.__send_auth()
 
     def __ping(self, message):
         """
@@ -151,11 +155,19 @@ class IRC(object):
         :param prefix:
         :param params:
         :param message:
-        :return:
         """
         self.privmsg(prefix.decode(self.encoding),
                      params[0].decode(self.encoding),
                      message.decode(self.encoding, 'ignore'))
+
+    def __logged_in(self):
+        """
+        Successful Login handler
+        """
+        self.logged_in()
+
+    def __end_motd(self):
+        self.__send_auth()
 
     def send(self, data: str):
         """
@@ -191,6 +203,7 @@ class IRC(object):
     def notice(self, prefix, params, message):
         """
         Notice received event
+        :param prefix: Sender
         :param params: Parameter list
         :param message: Notice message
         :return:
@@ -204,5 +217,11 @@ class IRC(object):
         :param target:
         :param message:
         :return:
+        """
+        pass
+
+    def logged_in(self):
+        """
+        Successful login event
         """
         pass
