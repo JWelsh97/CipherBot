@@ -32,6 +32,7 @@ class IRC(object):
             b'NOTICE': self.__notice,
             b'PRIVMSG': self.__privmsg,
             b'251': self.__user_count,
+            b'252': self.__op_count,
             b'433': self.__nick_in_use,
             b'372': self.__motd,
             b'376': self.__end_motd,
@@ -170,6 +171,9 @@ class IRC(object):
         result = reg.match(message.decode(self.encoding))
         self.user_count(*result.groups())
 
+    def __op_count(self, params):
+        self.op_count(params[1].decode(self.encoding))
+
     def __logged_in(self):
         """
         Successful Login handler
@@ -237,4 +241,7 @@ class IRC(object):
         pass
 
     def user_count(self, users, services, servers):
+        pass
+
+    def op_count(self, ops):
         pass

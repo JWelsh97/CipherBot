@@ -26,3 +26,6 @@ class Bot(IRC):
 
     def user_count(self, users, services, servers):
         print('There are %s users and %s services on %s servers' % (users, services, servers))
+
+    def op_count(self, ops):
+        print('%s operator(s) online' % ops)
