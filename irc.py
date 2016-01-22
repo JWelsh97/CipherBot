@@ -56,7 +56,8 @@ class IRC(object):
         """
         Start listening for data
         """
-        self.__send_auth()
+        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
+        self.__set_nick()
         self.__stream.read_until_close(self.closed, self.__route)
 
     def __route(self, data):
@@ -100,14 +101,16 @@ class IRC(object):
         """
         Send auth data
         """
+        self.__set_nick()
+        if self.pwd:
+            self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
+
+    def __set_nick(self):
         if self.__nickidx < len(self.nicks):
             nick = self.nicks[self.__nickidx]
         else:
             nick = self.nicks[0] + str(self.__nickidx - len(self.nicks))
         self.send('NICK %s' % nick)
-        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
-        if self.pwd:
-            self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
 
     def __nick_in_use(self):
         """
