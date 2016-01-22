@@ -3,6 +3,7 @@ import tornado.iostream
 import socket
 import ssl
 import inspect
+import re
 
 
 class IRC(object):
@@ -30,6 +31,7 @@ class IRC(object):
             b'PING': self.__ping,
             b'NOTICE': self.__notice,
             b'PRIVMSG': self.__privmsg,
+            b'251': self.__user_count,
             b'433': self.__nick_in_use,
             b'372': self.__motd,
             b'376': self.__end_motd,
@@ -163,6 +165,11 @@ class IRC(object):
                      params[0].decode(self.encoding),
                      message.decode(self.encoding, 'ignore'))
 
+    def __user_count(self, message):
+        reg = re.compile(r'[\w\s]+?(\d+)[\w\s]+(\d+)[\w\s]+(\d+)')
+        result = reg.match(message.decode(self.encoding))
+        self.user_count(*result.groups())
+
     def __logged_in(self):
         """
         Successful Login handler
@@ -227,4 +234,7 @@ class IRC(object):
         """
         Successful login event
         """
+        pass
+
+    def user_count(self, users, services, servers):
         pass
