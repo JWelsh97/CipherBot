@@ -13,3 +13,13 @@ class Bot(IRC):
 
     def ping(self, server1, server2):
         print('PONG %s' % server1)
+
+    def notice(self, prefix, params, message):
+        print('%s: %s' % (prefix, message))
+
+    def privmsg(self, source, target, message):
+        user = source.split('!')[0]
+        print('%s | %s | %s' % (target, user, message))
+
+    def logged_in(self):
+        print('Logged in!')
