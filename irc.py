@@ -3,6 +3,7 @@ import tornado.iostream
 import socket
 import ssl
 import inspect
+import re
 
 
 class IRC(object):
@@ -30,6 +31,10 @@ class IRC(object):
             b'PING': self.__ping,
             b'NOTICE': self.__notice,
             b'PRIVMSG': self.__privmsg,
+            b'PART': self.__part,
+            b'JOIN': self.__join,
+            b'251': self.__user_count,
+            b'252': self.__op_count,
             b'433': self.__nick_in_use,
             b'372': self.__motd,
             b'376': self.__end_motd,
@@ -56,7 +61,8 @@ class IRC(object):
         """
         Start listening for data
         """
-        self.__send_auth()
+        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
+        self.__set_nick()
         self.__stream.read_until_close(self.closed, self.__route)
 
     def __route(self, data):
@@ -100,14 +106,16 @@ class IRC(object):
         """
         Send auth data
         """
+        self.__set_nick()
+        if self.pwd:
+            self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
+
+    def __set_nick(self):
         if self.__nickidx < len(self.nicks):
             nick = self.nicks[self.__nickidx]
         else:
             nick = self.nicks[0] + str(self.__nickidx - len(self.nicks))
         self.send('NICK %s' % nick)
-        self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
-        if self.pwd:
-            self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
 
     def __nick_in_use(self):
         """
@@ -159,6 +167,23 @@ class IRC(object):
         self.privmsg(prefix.decode(self.encoding),
                      params[0].decode(self.encoding),
                      message.decode(self.encoding, 'ignore'))
+
+    def __part(self, prefix, params, message):
+        self.user_parted(prefix.decode(self.encoding),
+                         params[0].decode(self.encoding),
+                         message.decode(self.encoding))
+
+    def __join(self, prefix, message):
+        self.user_joined(prefix.decode(self.encoding),
+                         message.decode(self.encoding))
+
+    def __user_count(self, message):
+        reg = re.compile(r'[\w\s]+?(\d+)[\w\s]+(\d+)[\w\s]+(\d+)')
+        result = reg.match(message.decode(self.encoding))
+        self.user_count(*result.groups())
+
+    def __op_count(self, params):
+        self.op_count(params[1].decode(self.encoding))
 
     def __logged_in(self):
         """
@@ -220,8 +245,20 @@ class IRC(object):
         """
         pass
 
+    def user_parted(self, user, channel, message):
+        pass
+
+    def user_joined(self, user, channel):
+        pass
+
     def logged_in(self):
         """
         Successful login event
         """
+        pass
+
+    def user_count(self, users, services, servers):
+        pass
+
+    def op_count(self, ops):
         pass

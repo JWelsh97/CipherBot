@@ -23,3 +23,15 @@ class Bot(IRC):
 
     def logged_in(self):
         print('Logged in!')
+
+    def user_count(self, users, services, servers):
+        print('There are %s users and %s services on %s servers' % (users, services, servers))
+
+    def op_count(self, ops):
+        print('%s operator(s) online' % ops)
+
+    def user_parted(self, user, channel, message):
+        print('%s left %s (%s)' % (user, channel, message))
+
+    def user_joined(self, user, channel):
+        print('%s joined %s' % (user, channel))
