@@ -33,6 +33,7 @@ class IRC(object):
             b'PRIVMSG': self.__privmsg,
             b'PART': self.__part,
             b'JOIN': self.__join,
+            b'MODE': self.__mode,
             b'251': self.__user_count,
             b'252': self.__op_count,
             b'433': self.__nick_in_use,
@@ -117,6 +118,10 @@ class IRC(object):
             nick = self.nicks[0] + str(self.__nickidx - len(self.nicks))
         self.send('NICK %s' % nick)
 
+    @staticmethod
+    def __get_nick(prefix):
+        return prefix.split(b'!')[0]
+
     def __nick_in_use(self):
         """
         Try another nick
@@ -153,7 +158,8 @@ class IRC(object):
         :param message: Notice message
         :return:
         """
-        self.notice(prefix.decode(self.encoding),
+        nick = self.__get_nick(prefix)
+        self.notice(nick.decode(self.encoding),
                     [p.decode(self.encoding) for p in params],
                     message.decode(self.encoding))
 
@@ -169,13 +175,25 @@ class IRC(object):
                      message.decode(self.encoding, 'ignore'))
 
     def __part(self, prefix, params, message):
-        self.user_parted(prefix.decode(self.encoding),
+        self.user_parted(self.__get_nick(prefix).decode(self.encoding),
                          params[0].decode(self.encoding),
                          message.decode(self.encoding))
 
     def __join(self, prefix, message):
-        self.user_joined(prefix.decode(self.encoding),
+        self.user_joined(self.__get_nick(prefix).decode(self.encoding),
                          message.decode(self.encoding))
+
+    def __mode(self, prefix, params):
+        source = self.__get_nick(prefix).decode(self.encoding)
+        if params[0].startswith(b'#'):
+            channel = params[0].decode(self.encoding)
+            mode = [x for x in params[1].decode(self.encoding)]
+            target = params[2].decode(self.encoding) if len(params) > 2 else params[0].decode(self.encoding)
+            self.channel_mode(source, channel, mode, target)
+        else:
+            target = params[0].decode(self.encoding)
+            mode = [x for x in params[1].decode(self.encoding)]
+            self.user_mode(source, target, mode)
 
     def __user_count(self, message):
         reg = re.compile(r'[\w\s]+?(\d+)[\w\s]+(\d+)[\w\s]+(\d+)')
@@ -261,4 +279,10 @@ class IRC(object):
         pass
 
     def op_count(self, ops):
+        pass
+
+    def channel_mode(self, source, channel, mode, target):
+        pass
+
+    def user_mode(self, source, target, mode):
         pass

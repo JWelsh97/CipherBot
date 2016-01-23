@@ -35,3 +35,9 @@ class Bot(IRC):
 
     def user_joined(self, user, channel):
         print('%s joined %s' % (user, channel))
+
+    def channel_mode(self, source, channel, mode, target):
+        print('Mode %s [%s %s] by %s' % (channel, ''.join(mode), target, source))
+
+    def user_mode(self, source, target, mode):
+        print('Mode [%s %s] by %s' % (''.join(mode), target, source))
