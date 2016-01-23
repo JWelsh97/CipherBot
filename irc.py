@@ -32,6 +32,7 @@ class IRC(object):
             b'NOTICE': self.__notice,
             b'PRIVMSG': self.__privmsg,
             b'PART': self.__part,
+            b'JOIN': self.__join,
             b'251': self.__user_count,
             b'252': self.__op_count,
             b'433': self.__nick_in_use,
@@ -172,6 +173,10 @@ class IRC(object):
                          params[0].decode(self.encoding),
                          message.decode(self.encoding))
 
+    def __join(self, prefix, message):
+        self.user_joined(prefix.decode(self.encoding),
+                         message.decode(self.encoding))
+
     def __user_count(self, message):
         reg = re.compile(r'[\w\s]+?(\d+)[\w\s]+(\d+)[\w\s]+(\d+)')
         result = reg.match(message.decode(self.encoding))
@@ -241,6 +246,9 @@ class IRC(object):
         pass
 
     def user_parted(self, user, channel, message):
+        pass
+
+    def user_joined(self, user, channel):
         pass
 
     def logged_in(self):

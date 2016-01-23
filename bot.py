@@ -32,3 +32,6 @@ class Bot(IRC):
 
     def user_parted(self, user, channel, message):
         print('%s left %s (%s)' % (user, channel, message))
+
+    def user_joined(self, user, channel):
+        print('%s joined %s' % (user, channel))
