@@ -29,3 +29,6 @@ class Bot(IRC):
 
     def op_count(self, ops):
         print('%s operator(s) online' % ops)
+
+    def user_parted(self, user, channel, message):
+        print('%s left %s (%s)' % (user, channel, message))
