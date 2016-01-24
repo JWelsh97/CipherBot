@@ -6,7 +6,7 @@ class Kick(Plugin):
     def __init__(self, irc):
         super().__init__(irc)
         # Subscribe to events
-        Events.privmsg.append(self.msg)
+        Events.privmsg += self.msg
 
     def msg(self, user, target, message):
         if not target.startswith('#'):
