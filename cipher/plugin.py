@@ -1,7 +1,6 @@
 class Plugin(object):
     def __init__(self, irc):
         self.irc = irc
-        self.name = 'Default_Plugin'
 
     def on_join(self, user, channel):
         pass

@@ -13,8 +13,6 @@ class Bot(IRC):
         super().__init__(host, port, nicks, pwd, use_ssl, ssl_options, encoding)
         self.plugins = []
         self.__load_plugins()
-        for p in self.plugins:
-            print(p.name)
 
     def motd(self, message):
         print(message)
@@ -61,3 +59,4 @@ class Bot(IRC):
                         if isinstance(p[1], type):
                             if issubclass(p[1], Plugin) and p[0] != 'Plugin':
                                 self.plugins.append(p[1](self))
+                                print('Loaded Plugin: %s' % type(self.plugins[-1]).__name__)

@@ -6,7 +6,6 @@ class MyPlugin(Plugin):
     def __init__(self, irc):
         super().__init__(irc)
         Events.privmsg.append(self.msg)
-        self.name = 'Example'
 
     def msg(self, user, target, message):
         if not target.startswith('#'):
