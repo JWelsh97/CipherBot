@@ -50,13 +50,13 @@ class IRC(object):
                 # IRC often has unsigned certs, by default do not verify
                 ssl_options.verify_mode = ssl.CERT_NONE
             sock = ssl.wrap_socket(sock, do_handshake_on_connect=False)
-            self.__stream = tornado.iostream.SSLIOStream(sock, ssl_options=ssl_options)
+            self.stream = tornado.iostream.SSLIOStream(sock, ssl_options=ssl_options)
         else:
-            self.__stream = tornado.iostream.IOStream(sock)
+            self.stream = tornado.iostream.IOStream(sock)
 
-        self.__stream.connect((self.host, self.port),
-                              self.__initial_auth,
-                              server_hostname=self.host)
+        self.stream.connect((self.host, self.port),
+                            self.__initial_auth,
+                            server_hostname=self.host)
 
     def __initial_auth(self):
         """
@@ -64,7 +64,7 @@ class IRC(object):
         """
         self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
         self.__set_nick()
-        self.__stream.read_until_close(self.closed, self.__route)
+        self.stream.read_until_close(self.closed, self.__route)
 
     def __route(self, data):
         """
@@ -255,7 +255,7 @@ class IRC(object):
             data = data.encode(self.encoding)
 
         if type(data) is bytes:
-            self.__stream.write(data + b'\r\n')
+            self.stream.write(data + b'\r\n')
         else:
             raise TypeError('Data must be bytes or string')
 
