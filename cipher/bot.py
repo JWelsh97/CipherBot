@@ -1,7 +1,5 @@
 import ssl
-
 from types import ModuleType
-
 import plugins
 from .event import Events
 from .irc import IRC
