@@ -5,7 +5,7 @@ from cipher.event import Events
 class MyPlugin(Plugin):
     def __init__(self, irc):
         super().__init__(irc)
-        Events.privmsg.append(self.msg)
+        Events.privmsg += self.msg
 
     def msg(self, user, target, message):
         if not target.startswith('#'):
