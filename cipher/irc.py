@@ -50,13 +50,13 @@ class IRC(object):
                 # IRC often has unsigned certs, by default do not verify
                 ssl_options.verify_mode = ssl.CERT_NONE
             sock = ssl.wrap_socket(sock, do_handshake_on_connect=False)
-            self.__stream = tornado.iostream.SSLIOStream(sock, ssl_options=ssl_options)
+            self.stream = tornado.iostream.SSLIOStream(sock, ssl_options=ssl_options)
         else:
-            self.__stream = tornado.iostream.IOStream(sock)
+            self.stream = tornado.iostream.IOStream(sock)
 
-        self.__stream.connect((self.host, self.port),
-                              self.__initial_auth,
-                              server_hostname=self.host)
+        self.stream.connect((self.host, self.port),
+                            self.__initial_auth,
+                            server_hostname=self.host)
 
     def __initial_auth(self):
         """
@@ -64,11 +64,11 @@ class IRC(object):
         """
         self.send('USER %s 0 * :%s' % (self.nicks[0], 'realname'))
         self.__set_nick()
-        self.__stream.read_until_close(self.closed, self.__route)
+        self.stream.read_until_close(self.closed, self.__route)
 
     def __route(self, data):
         """
-        Monitor incoming data and dispatch it to the proper methods
+        Dispatch incoming data to the proper methods
         :param data: Raw byte array
         """
         data = data.split(b'\r\n')
@@ -112,6 +112,9 @@ class IRC(object):
             self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
 
     def __set_nick(self):
+        """
+        Set a nick
+        """
         if self.__nickidx < len(self.nicks):
             nick = self.nicks[self.__nickidx]
         else:
@@ -120,6 +123,11 @@ class IRC(object):
 
     @staticmethod
     def __get_nick(prefix):
+        """
+        Parse prefix data
+        :param prefix: nick!user@host
+        :return: Nickname as byte array
+        """
         return prefix.split(b'!')[0]
 
     def __nick_in_use(self):
@@ -132,7 +140,7 @@ class IRC(object):
     def __ping(self, message):
         """
         Ping event handler
-        :param message:
+        :param message: PING message
         """
         ping = message.split(b' ')
         server1 = ping[0].decode(self.encoding)
@@ -156,7 +164,6 @@ class IRC(object):
         Notice handler
         :param params: Parameter list
         :param message: Notice message
-        :return:
         """
         nick = self.__get_nick(prefix)
         self.notice(nick.decode(self.encoding),
@@ -166,24 +173,40 @@ class IRC(object):
     def __privmsg(self, prefix, params, message):
         """
         PRIVMSG event handler
-        :param prefix:
-        :param params:
-        :param message:
+        :param prefix: Sender
+        :param params: Command parameters
+        :param message: PRIVMSG message
         """
         self.privmsg(prefix.decode(self.encoding),
                      params[0].decode(self.encoding),
                      message.decode(self.encoding, 'ignore'))
 
     def __part(self, prefix, params, message):
+        """
+        PART event handler
+        :param prefix: Sender
+        :param params: User, Channel
+        :param message: Part message
+        """
         self.user_parted(self.__get_nick(prefix).decode(self.encoding),
                          params[0].decode(self.encoding),
                          message.decode(self.encoding))
 
     def __join(self, prefix, message):
+        """
+        JOIN event hanlder
+        :param prefix: User
+        :param message: Channel
+        """
         self.user_joined(self.__get_nick(prefix).decode(self.encoding),
                          message.decode(self.encoding))
 
     def __mode(self, prefix, params):
+        """
+        MODE event handler
+        :param prefix: User
+        :param params: channel, target, modes
+        """
         source = self.__get_nick(prefix).decode(self.encoding)
         if params[0].startswith(b'#'):
             channel = params[0].decode(self.encoding)
@@ -196,20 +219,31 @@ class IRC(object):
             self.user_mode(source, target, mode)
 
     def __user_count(self, message):
+        """
+        Command 251 event handler
+        :param message: User, Service, Servers
+        """
         reg = re.compile(r'[\w\s]+?(\d+)[\w\s]+(\d+)[\w\s]+(\d+)')
         result = reg.match(message.decode(self.encoding))
         self.user_count(*result.groups())
 
     def __op_count(self, params):
+        """
+        Command 252 event handler
+        :param params: nick, op_count
+        """
         self.op_count(params[1].decode(self.encoding))
 
     def __logged_in(self):
         """
-        Successful Login handler
+        Command 900 event handler
         """
         self.logged_in()
 
     def __end_motd(self):
+        """
+        Command 376 event handler
+        """
         self.__send_auth()
 
     def send(self, data: str):
@@ -221,23 +255,27 @@ class IRC(object):
             data = data.encode(self.encoding)
 
         if type(data) is bytes:
-            self.__stream.write(data + b'\r\n')
+            self.stream.write(data + b'\r\n')
         else:
             raise TypeError('Data must be bytes or string')
 
     def closed(self, data):
+        """
+        Connection closed event
+        :param data: None
+        """
         pass
 
     def motd(self, message):
         """
-        MOTD received event
+        MOTD event
         :param message: Line of MOTD
         """
         pass
 
     def ping(self, server1, server2):
         """
-        PING received event
+        PING event
         :param server1: Originating server
         :param server2: Forwarding server
         """
@@ -245,7 +283,7 @@ class IRC(object):
 
     def notice(self, prefix, params, message):
         """
-        Notice received event
+        Notice event
         :param prefix: Sender
         :param params: Parameter list
         :param message: Notice message
@@ -255,7 +293,7 @@ class IRC(object):
 
     def privmsg(self, source, target, message):
         """
-        PRIVMSG received event
+        PRIVMSG event
         :param source:
         :param target:
         :param message:
@@ -264,9 +302,21 @@ class IRC(object):
         pass
 
     def user_parted(self, user, channel, message):
+        """
+        PARTED event
+        :param user: Parting users nickname
+        :param channel: Channel the user parted from
+        :param message: Part message
+        """
         pass
 
     def user_joined(self, user, channel):
+        """
+        JOIN event
+        :param user: Joining users nickname
+        :param channel: Channel the user parted from
+        :return:
+        """
         pass
 
     def logged_in(self):
@@ -276,13 +326,37 @@ class IRC(object):
         pass
 
     def user_count(self, users, services, servers):
+        """
+        251 RPL_LUSERCLIENT event
+        :param users: Number of users online
+        :param services: Number of services
+        :param servers: Number of servers
+        """
         pass
 
     def op_count(self, ops):
+        """
+        252 RPL_LUSEROP event
+        :param ops: Number of ops online
+        """
         pass
 
     def channel_mode(self, source, channel, mode, target):
+        """
+        Channel MODE event
+        :param source: User that caused the mode change
+        :param channel: Channel the event is for
+        :param mode: A list of modes that were changed. Starts with +/-
+        :param target: The user or channel that had it's mode changed
+        :return:
+        """
         pass
 
     def user_mode(self, source, target, mode):
+        """
+        User MODE event
+        :param source: User that caused the change
+        :param target: User that had it's mode changed
+        :param mode: A list of modes that were changed. Starts with +/-
+        """
         pass

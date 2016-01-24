@@ -1,6 +1,5 @@
-from bot import Bot
 import tornado.ioloop
-from config import read_config
+from cipher import *
 
 if __name__ == '__main__':
     config = read_config()

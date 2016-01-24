@@ -13,8 +13,7 @@ def read_config():
         'password': '',
         'ssl': True
     }
-    path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(path, 'config.yaml'), 'r') as f:
+    with open('config.yaml', 'r') as f:
         conf = yaml.load(f)
 
     for key in default:
