@@ -1,9 +1,7 @@
 import ssl
-from types import ModuleType
-import plugins
+from plugins import plugins
 from .event import Events
 from .irc import IRC
-from .plugin import Plugin
 
 
 class Bot(IRC):
@@ -52,11 +50,6 @@ class Bot(IRC):
         print('Mode [%s %s] by %s' % (''.join(mode), target, source))
 
     def __load_plugins(self):
-        for m in plugins.__dict__.items():
-            if m[0] != 'importlib':
-                if isinstance(m[1], ModuleType):
-                    for p in m[1].__dict__.items():
-                        if isinstance(p[1], type):
-                            if issubclass(p[1], Plugin) and p[0] != 'Plugin':
-                                self.plugins.append(p[1](self))
-                                print('Loaded Plugin: %s' % type(self.plugins[-1]).__name__)
+        for name, plugin in plugins:
+            self.plugins.append(plugin(self))
+            print('Loaded Plugin: %s' % name)
