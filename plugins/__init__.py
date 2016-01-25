@@ -9,9 +9,7 @@ plugins = []
 
 for module in listdir(dirname(__file__)):
     module = module.strip('.py')
-    if module != 'example'\
-            and module != '__pycache__'\
-            and module != '__init__':
+    if module not in ['example', '__pycache__', '__init__']:
         plugin = import_module('.' + module, 'plugins')
         plugins += list(filter(lambda x: x[0] != 'Plugin' and issubclass(x[1], Plugin),
                                inspect.getmembers(plugin, inspect.isclass)))
