@@ -1,10 +1,17 @@
 from os import listdir
-from os.path import dirname, join
-import importlib
+from os.path import dirname
+from importlib import import_module
+import inspect
+from cipher.plugin import Plugin
 
 
-for m in listdir(dirname(__file__)):
-    if m != '__init__.py':
-        m = m.strip('.py')
-        if m != 'example':
-            importlib.import_module('.' + m, 'plugins')
+plugins = []
+
+for module in listdir(dirname(__file__)):
+    module = module.strip('.py')
+    if module != 'example'\
+            and module != '__pycache__'\
+            and module != '__init__':
+        plugin = import_module('.' + module, 'plugins')
+        plugins += list(filter(lambda x: x[0] != 'Plugin' and issubclass(x[1], Plugin),
+                               inspect.getmembers(plugin, inspect.isclass)))
