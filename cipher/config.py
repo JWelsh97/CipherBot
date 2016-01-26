@@ -1,4 +1,3 @@
-import os
 import yaml
 
 
@@ -6,22 +5,32 @@ def read_config():
     """
     Reads the YAML config file
     """
-    default = {
-        'host': 'affinity.pw',
-        'port': 6697,
-        'nickname': ['Cipher', 'Cipher_', 'Cipher__'],
-        'password': '',
-        'ssl': True
+    config = {
+        'bot': {
+            'host': 'affinity.pw',
+            'port': 6697,
+            'nickname': ['Cipher', 'Cipher_', 'Cipher__'],
+            'password': '',
+            'enable_ssl': True
+        }
     }
+
     with open('config.yaml', 'r') as f:
-        conf = yaml.load(f)
+        user_config = yaml.load(f)
 
-    for key in default:
-        if key in conf:
-            default[key] = conf[key]
+    for d in config:
+        # Load user config dictionaries
+        if d in user_config:
+            config[d] = user_config[d]
+        else:
+            user_config[d] = {}
 
-    if not isinstance(default['nickname'], list):
-        default['nickname'] = [default['nickname']]
+        # Load user config keys
+        for key in config[d]:
+            if key in user_config[d]:
+                config[d][key] = user_config[d][key]
 
-    return default
+    if not isinstance(config['bot']['nickname'], list):
+        config['bot']['nickname'] = [config['bot']['nickname']]
 
+    return config

@@ -1,5 +1,6 @@
-host: 'affinity.pw'
-port: 6697
-nickname: ['Cipher', 'Cipher_', 'Cipher__']
-password:
-ssl: True
+bot:
+  host: 'affinity.pw'
+  port: 6697
+  nickname: ['Cipher', 'Cipher_', 'Cipher__']
+  password:
+  enable_ssl: True
