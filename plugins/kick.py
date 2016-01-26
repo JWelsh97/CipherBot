@@ -1,5 +1,4 @@
-from cipher.plugin import Plugin
-from cipher.event import Events
+from cipher.irc import Plugin, Events
 
 
 class Kick(Plugin):

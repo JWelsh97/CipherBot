@@ -1,8 +1,8 @@
+import inspect
 from os import listdir
 from os.path import dirname
 from importlib import import_module
-import inspect
-from cipher.plugin import Plugin
+from cipher.irc import Plugin
 
 
 plugins = []
