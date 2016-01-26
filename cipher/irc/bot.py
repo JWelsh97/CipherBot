@@ -5,10 +5,10 @@ from .irc import IRC
 
 
 class Bot(IRC):
-    def __init__(self, host: str, port: int, nicks: list, pwd: str,
-                 use_ssl: bool=False, ssl_options: ssl.SSLContext=None,
+    def __init__(self, host: str, port: int, nickname: list, password: str,
+                 enable_ssl: bool=False, ssl_options: ssl.SSLContext=None,
                  encoding: str='utf-8'):
-        super().__init__(host, port, nicks, pwd, use_ssl, ssl_options, encoding)
+        super().__init__(host, port, nickname, password, enable_ssl, ssl_options, encoding)
         self.plugins = []
         self.__load_plugins()
 
