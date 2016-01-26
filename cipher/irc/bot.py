@@ -49,6 +49,9 @@ class Bot(IRC):
     def user_mode(self, source, target, mode):
         print('Mode [%s %s] by %s' % (''.join(mode), target, source))
 
+    def namreply(self, channel, users):
+        print('%s: %s' % (channel, ', '.join(users)))
+
     def __load_plugins(self):
         for name, plugin in plugins:
             self.plugins.append(plugin(self))

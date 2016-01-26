@@ -36,9 +36,10 @@ class IRC(object):
             b'MODE': self.__mode,
             b'251': self.__user_count,
             b'252': self.__op_count,
-            b'433': self.__nick_in_use,
+            b'353': self.__namreply,
             b'372': self.__motd,
             b'376': self.__end_motd,
+            b'433': self.__nick_in_use,
             b'900': self.__logged_in
         }
 
@@ -246,6 +247,16 @@ class IRC(object):
         """
         self.__send_auth()
 
+    def __namreply(self, params, message):
+        """
+        Command 353 event handler
+        :param params: nickname, channel
+        :param message: list of channel's clients
+        """
+        channel = params[2].decode(self.encoding)
+        users = message.decode(self.encoding).split(' ')
+        self.namreply(channel, users)
+
     def send(self, data: str):
         """
         Write to stream
@@ -358,5 +369,13 @@ class IRC(object):
         :param source: User that caused the change
         :param target: User that had it's mode changed
         :param mode: A list of modes that were changed. Starts with +/-
+        """
+        pass
+
+    def namreply(self, channel, users):
+        """
+        Command 353 event handler
+        :param channel: nickname, channel
+        :param users: list of channel's clients
         """
         pass
