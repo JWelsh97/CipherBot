@@ -61,19 +61,14 @@ class Bot(IRC):
         self.users[channel] = {}
         for user in users:
             mode = user[0] if user[0] in ['~', '&', '@', '%', '+'] else ''
-            # Get the permissions associated with the users mode
-            if '~' in mode:
-                mode = 'qo'
-            elif '&' in mode:
-                mode = 'ao'
-            elif '@' in mode:
-                mode = 'o'
-            elif '%' in mode:
-                mode = 'h'
-            elif '+' in mode:
-                mode = 'v'
+            modes = {'~': 'qo',
+                     '&': 'ao',
+                     '@': 'o',
+                     '%': 'h',
+                     '+': 'v',
+                     '': ''}
             user = user[1:] if mode else user
-            self.users[channel][user] = mode
+            self.users[channel][user] = modes[mode]
         print('%s: %s' % (channel, ', '.join(users)))
 
     def __load_plugins(self):
