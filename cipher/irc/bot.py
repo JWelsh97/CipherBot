@@ -48,7 +48,8 @@ class Bot(IRC):
 
     def channel_mode(self, source, channel, mode, target):
         if mode[0] == '-':
-            self.users[channel][target] = self.users[channel][target].replace(mode, '')
+            for m in mode[1:]:
+                self.users[channel][target] = self.users[channel][target].replace(m, '')
         else:
             self.users[channel][target] += mode[1:]
         print('Mode %s [%s %s] by %s' % (channel, ''.join(mode), target, source))

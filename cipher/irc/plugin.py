@@ -30,3 +30,5 @@ class Plugin(object):
             return '%'
         elif 'v' in mode:
             return '+'
+        else:
+            return ''
