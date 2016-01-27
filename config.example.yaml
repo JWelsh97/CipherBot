@@ -3,4 +3,5 @@ bot:
   port: 6697
   nickname: ['Cipher', 'Cipher_', 'Cipher__']
   password:
+  channels: ['#example']
   enable_ssl: True

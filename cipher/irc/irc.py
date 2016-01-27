@@ -7,7 +7,7 @@ import re
 
 
 class IRC(object):
-    def __init__(self, host: str, port: int, nicks: list, pwd: str,
+    def __init__(self, host: str, port: int, nicks: list, pwd: str, chans: list,
                  use_ssl: bool=False, ssl_options: ssl.SSLContext=None,
                  encoding: str='utf-8'):
         """
@@ -24,6 +24,7 @@ class IRC(object):
         self.port = port
         self.nicks = nicks
         self.pwd = pwd
+        self.chans = chans
         self.ssl = use_ssl
         self.encoding = encoding
         self.__nickidx = 0
@@ -240,6 +241,7 @@ class IRC(object):
         Command 900 event handler
         """
         self.logged_in()
+        self.__join_chans(self.chans)
 
     def __end_motd(self):
         """
@@ -256,6 +258,10 @@ class IRC(object):
         channel = params[2].decode(self.encoding)
         users = message.decode(self.encoding).split(' ')
         self.namreply(channel, users)
+
+    def __join_chans(self, channels):
+        for channel in channels:
+            self.send('JOIN %s' % channel)
 
     def send(self, data: str):
         """
@@ -334,6 +340,7 @@ class IRC(object):
         """
         Successful login event
         """
+
         pass
 
     def user_count(self, users, services, servers):
