@@ -35,6 +35,7 @@ class IRC(object):
             b'PART': self.__part,
             b'JOIN': self.__join,
             b'MODE': self.__mode,
+            b'001': self.__welcome,
             b'251': self.__user_count,
             b'252': self.__op_count,
             b'353': self.__namreply,
@@ -241,13 +242,12 @@ class IRC(object):
         Command 900 event handler
         """
         self.logged_in()
-        self.__join_chans(self.chans)
 
     def __end_motd(self):
         """
         Command 376 event handler
         """
-        self.__send_auth()
+        self.__join_chans(self.chans)
 
     def __namreply(self, params, message):
         """
@@ -258,6 +258,12 @@ class IRC(object):
         channel = params[2].decode(self.encoding)
         users = message.decode(self.encoding).split(' ')
         self.namreply(channel, users)
+
+    def __welcome(self):
+        """
+        Command 001 event handler
+        """
+        self.__send_auth()
 
     def __join_chans(self, channels):
         for channel in channels:
@@ -384,5 +390,11 @@ class IRC(object):
         Command 353 event handler
         :param channel: nickname, channel
         :param users: list of channel's clients
+        """
+        pass
+
+    def welcome(self):
+        """
+        Command 001 event handler
         """
         pass
