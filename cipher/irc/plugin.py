@@ -13,3 +13,20 @@ class Plugin(object):
 
     def send_msg(self, target, message):
         self.irc.send('PRIVMSG %s %s' % (target, message))
+
+    def user_mode(self, user, channel):
+        try:
+            mode = self.irc.users[channel][user]
+        except KeyError:
+            mode = ''
+
+        if 'q' in mode:
+            return '~'
+        elif 'a' in mode:
+            return '&'
+        elif 'o' in mode:
+            return '@'
+        elif 'h' in mode:
+            return '%'
+        elif 'v' in mode:
+            return '+'

@@ -11,6 +11,7 @@ class Bot(IRC):
         super().__init__(host, port, nickname, password, enable_ssl, ssl_options, encoding)
         self.plugins = []
         self.__load_plugins()
+        self.users = {}
 
     def motd(self, message):
         print(message)
@@ -36,20 +37,42 @@ class Bot(IRC):
         print('%s operator(s) online' % ops)
 
     def user_parted(self, user, channel, message):
+        del(self.users[channel][user])
         print('%s left %s (%s)' % (user, channel, message))
         Events.part.notify(user, channel, message)
 
     def user_joined(self, user, channel):
+        self.users[channel][user] = ''
         print('%s joined %s' % (user, channel))
         Events.join.notify(user, channel)
 
     def channel_mode(self, source, channel, mode, target):
+        if mode[0] == '-':
+            self.users[channel][target] = self.users[channel][target].replace(mode, '')
+        else:
+            self.users[channel][target] += mode[1:]
         print('Mode %s [%s %s] by %s' % (channel, ''.join(mode), target, source))
 
     def user_mode(self, source, target, mode):
         print('Mode [%s %s] by %s' % (''.join(mode), target, source))
 
     def namreply(self, channel, users):
+        self.users[channel] = {}
+        for user in users:
+            mode = user[0] if user[0] in ['~', '&', '@', '%', '+'] else ''
+            # Get the permissions associated with the users mode
+            if '~' in mode:
+                mode = 'qo'
+            elif '&' in mode:
+                mode = 'ao'
+            elif '@' in mode:
+                mode = 'o'
+            elif '%' in mode:
+                mode = 'h'
+            elif '+' in mode:
+                mode = 'v'
+            user = user[1:] if mode else user
+            self.users[channel][user] = mode
         print('%s: %s' % (channel, ', '.join(users)))
 
     def __load_plugins(self):

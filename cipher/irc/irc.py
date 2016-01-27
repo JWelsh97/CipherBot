@@ -211,7 +211,7 @@ class IRC(object):
         source = self.__get_nick(prefix).decode(self.encoding)
         if params[0].startswith(b'#'):
             channel = params[0].decode(self.encoding)
-            mode = [x for x in params[1].decode(self.encoding)]
+            mode = params[1].decode(self.encoding)
             target = params[2].decode(self.encoding) if len(params) > 2 else params[0].decode(self.encoding)
             self.channel_mode(source, channel, mode, target)
         else:
