@@ -16,7 +16,7 @@ class Plugin(object):
 
     def user_mode(self, user, channel):
         try:
-            mode = self.irc.users[channel][user]
+            mode = self.irc.users[user][channel]
         except KeyError:
             mode = ''
 
