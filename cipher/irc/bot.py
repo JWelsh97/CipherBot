@@ -77,6 +77,10 @@ class Bot(IRC):
             self.users[user][channel] = modes[mode]
         print('%s: %s' % (channel, ', '.join(users)))
 
+    def nick_changed(self, old_nick, new_nick):
+        self.users[new_nick] = self.users.pop(old_nick)
+        print(self.users)
+
     def __load_plugins(self):
         for name, plugin in plugins:
             self.plugins.append(plugin(self))

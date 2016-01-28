@@ -35,6 +35,7 @@ class IRC(object):
             b'PART': self.__part,
             b'JOIN': self.__join,
             b'MODE': self.__mode,
+            b'NICK': self.__nick,
             b'001': self.__welcome,
             b'251': self.__user_count,
             b'252': self.__op_count,
@@ -269,6 +270,16 @@ class IRC(object):
         for channel in channels:
             self.send('JOIN %s' % channel)
 
+    def __nick(self, prefix, params):
+        """
+        Command NICK event handler
+        :param prefix:
+        :param params:
+        """
+        prefix = prefix.decode(self.encoding).split('!')[0]
+        params = params[0].decode(self.encoding)
+        self.nick_changed(prefix, params)
+
     def send(self, data: str):
         """
         Write to stream
@@ -310,7 +321,7 @@ class IRC(object):
         :param prefix: Sender
         :param params: Parameter list
         :param message: Notice message
-        :return:
+        :return
         """
         pass
 
@@ -320,7 +331,7 @@ class IRC(object):
         :param source:
         :param target:
         :param message:
-        :return:
+        :return
         """
         pass
 
@@ -396,5 +407,11 @@ class IRC(object):
     def welcome(self):
         """
         Command 001 event handler
+        """
+        pass
+
+    def nick_changed(self, old_nick, new_nick):
+        """
+        Command NICK event handler
         """
         pass
