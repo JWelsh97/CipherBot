@@ -79,7 +79,9 @@ class Bot(IRC):
 
     def nick_changed(self, old_nick, new_nick):
         self.users[new_nick] = self.users.pop(old_nick)
-        print(self.users)
+
+    def quit(self, nickname):
+        del(self.users[nickname])
 
     def __load_plugins(self):
         for name, plugin in plugins:

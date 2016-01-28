@@ -36,6 +36,7 @@ class IRC(object):
             b'JOIN': self.__join,
             b'MODE': self.__mode,
             b'NICK': self.__nick,
+            b'QUIT': self.__quit,
             b'001': self.__welcome,
             b'251': self.__user_count,
             b'252': self.__op_count,
@@ -273,13 +274,20 @@ class IRC(object):
     def __nick(self, prefix, params):
         """
         Command NICK event handler
-        :param prefix:
-        :param params:
+        :param prefix: old nickname
+        :param params: new nickname
         """
         prefix = prefix.decode(self.encoding).split('!')[0]
         params = params[0].decode(self.encoding)
         self.nick_changed(prefix, params)
 
+    def __quit(self, prefix):
+        """
+        Command QUIT event handler
+        :param prefix: the user that quit
+        """
+        prefix = prefix.decode(self.encoding).split('!')[0]
+        self.quit(prefix)
     def send(self, data: str):
         """
         Write to stream
@@ -413,5 +421,14 @@ class IRC(object):
     def nick_changed(self, old_nick, new_nick):
         """
         Command NICK event handler
+        :param old_nick: user's nickname before change
+        :param new_nick: user's nickname after change
+        """
+        pass
+
+    def quit(self, nickname):
+        """
+        Command QUIT event handler
+        :param nickname:  quitter's nickname
         """
         pass
