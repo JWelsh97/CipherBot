@@ -37,43 +37,44 @@ class Bot(IRC):
         print('%s operator(s) online' % ops)
 
     def user_parted(self, user, channel, message):
-        del(self.users[channel][user])
+        del(self.users[user][channel])
+        if self.users[user] == {}:
+            del(self.users[user])
+
         print('%s left %s (%s)' % (user, channel, message))
         Events.part.notify(user, channel, message)
 
     def user_joined(self, user, channel):
-        self.users[channel][user] = ''
+        self.users[user] = {}
+        self.users[user][channel] = ''
+
         print('%s joined %s' % (user, channel))
         Events.join.notify(user, channel)
 
     def channel_mode(self, source, channel, mode, target):
         if mode[0] == '-':
             for m in mode[1:]:
-                self.users[channel][target] = self.users[channel][target].replace(m, '')
+                self.users[target][channel] = self.users[target][channel].replace(m, '')
         else:
-            self.users[channel][target] += mode[1:]
+            self.users[target][channel] += mode[1:]
         print('Mode %s [%s %s] by %s' % (channel, ''.join(mode), target, source))
 
     def user_mode(self, source, target, mode):
         print('Mode [%s %s] by %s' % (''.join(mode), target, source))
 
     def namreply(self, channel, users):
-        self.users[channel] = {}
         for user in users:
             mode = user[0] if user[0] in ['~', '&', '@', '%', '+'] else ''
-            # Get the permissions associated with the users mode
-            if '~' in mode:
-                mode = 'qo'
-            elif '&' in mode:
-                mode = 'ao'
-            elif '@' in mode:
-                mode = 'o'
-            elif '%' in mode:
-                mode = 'h'
-            elif '+' in mode:
-                mode = 'v'
+            modes = {'~': 'qo',
+                     '&': 'ao',
+                     '@': 'o',
+                     '%': 'h',
+                     '+': 'v',
+                     '': ''}
             user = user[1:] if mode else user
-            self.users[channel][user] = mode
+            if user not in self.users:
+                self.users[user] = {}
+            self.users[user][channel] = modes[mode]
         print('%s: %s' % (channel, ', '.join(users)))
 
     def __load_plugins(self):
