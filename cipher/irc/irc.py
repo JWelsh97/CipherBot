@@ -90,7 +90,7 @@ class IRC(object):
                 command = irc_msg[0]
                 params = irc_msg[1:]
 
-                if handler in self.__handlers.keys():
+                if command in self.__handlers.keys():
                     handler = self.__handlers[command]
                     kwargs = inspect.signature(handler).parameters.keys()
                     if len(inspect.signature(handler).parameters) > 0:
