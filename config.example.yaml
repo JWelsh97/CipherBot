@@ -1,7 +1,8 @@
 bot:
-  host: 'affinity.pw'
-  port: 6697
-  nickname: ['Cipher', 'Cipher_', 'Cipher__']
-  password:
-  channels: ['#example']
-  enable_ssl: True
+    host: 'affinity.pw'
+    port: 6697
+    nickname: ['Cipher', 'Cipher_', 'Cipher__']
+    password:
+    channels: ['#example']
+    op_pass: '' #Oper pass here
+    enable_ssl: True
