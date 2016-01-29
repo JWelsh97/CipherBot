@@ -1,9 +1,10 @@
-import tornado
-import tornado.iostream
+import inspect
 import socket
 import ssl
-import inspect
 import re
+import tornado
+import tornado.iostream
+from tornado.ioloop import IOLoop
 
 
 class IRC(object):
@@ -287,7 +288,7 @@ class IRC(object):
         Connection closed event
         :param data: None
         """
-        pass
+        IOLoop.current().stop()
 
     def motd(self, message):
         """
