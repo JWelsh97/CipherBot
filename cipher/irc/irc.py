@@ -7,7 +7,7 @@ import re
 
 
 class IRC(object):
-    def __init__(self, host: str, port: int, nicks: list, pwd: str, chans: list,
+    def __init__(self, host: str, port: int, nicks: list, pwd: str, chans: list, op_pass: str,
                  use_ssl: bool=False, ssl_options: ssl.SSLContext=None,
                  encoding: str='utf-8'):
         """
@@ -25,6 +25,7 @@ class IRC(object):
         self.nicks = nicks
         self.pwd = pwd
         self.chans = chans
+        self.oper_pass = op_pass
         self.ssl = use_ssl
         self.encoding = encoding
         self.__nickidx = 0
@@ -115,6 +116,9 @@ class IRC(object):
         self.__set_nick()
         if self.pwd:
             self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
+        if self.oper_pass:
+            self.send('OPER %s %s' % (self.oper_pass, self.nicks[0]))
+            self.send('PRIVMSG operserv login %s' % self.oper_pass)
 
     def __set_nick(self):
         """
