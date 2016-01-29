@@ -32,3 +32,9 @@ class Plugin(object):
             return '+'
         else:
             return ''
+
+    def quit(self, nickname):
+        pass
+
+    def send_notice(self, target: str, message: str):
+        self.irc.send('NOTICE #help %s %s' % (target, message))

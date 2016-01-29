@@ -21,3 +21,5 @@ class Events:
     join = Event()
     part = Event()
     privmsg = Event()
+    quit = Event()
+

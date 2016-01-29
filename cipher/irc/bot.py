@@ -52,6 +52,11 @@ class Bot(IRC):
         Events.join.notify(user, channel)
 
     def channel_mode(self, source, channel, mode, target):
+        if target not in self.users:
+            self.users[target] = {}
+            self.users[target][channel] = ''
+            print('Added %s to %s' % (target, channel))
+
         if mode[0] == '-':
             for m in mode[1:]:
                 self.users[target][channel] = self.users[target][channel].replace(m, '')
@@ -82,6 +87,7 @@ class Bot(IRC):
 
     def quit(self, nickname):
         del(self.users[nickname])
+        Events.quit.notify(nickname)
 
     def __load_plugins(self):
         for name, plugin in plugins:
