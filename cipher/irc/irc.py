@@ -288,6 +288,7 @@ class IRC(object):
         """
         prefix = prefix.decode(self.encoding).split('!')[0]
         self.quit(prefix)
+
     def send(self, data: str):
         """
         Write to stream
@@ -390,7 +391,7 @@ class IRC(object):
         :param source: User that caused the mode change
         :param channel: Channel the event is for
         :param mode: A list of modes that were changed. Starts with +/-
-        :param target: The user or channel that had it's mode changed
+        :param target: The user or channel that had its mode changed
         :return:
         """
         pass
