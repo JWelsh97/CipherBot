@@ -90,6 +90,7 @@ class Bot(IRC):
 
     def kick(self, channel, kicked_user):
         print('User %s kicked from %s' % (kicked_user, channel))
+        Events.notify.kick(channel, kicked_user)
 
     def __add_user(self, user, channel):
         if user not in self.users:
