@@ -52,8 +52,7 @@ class Bot(IRC):
         Events.join.notify(user, channel)
 
     def channel_mode(self, source, channel, mode, target):
-        if target not in self.users:
-            self.users[target] = {}
+        if channel not in self.users[target]:
             self.users[target][channel] = ''
             print('Added %s to %s' % (target, channel))
 
