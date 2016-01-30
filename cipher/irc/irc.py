@@ -274,7 +274,8 @@ class IRC(object):
         self.__send_auth()
 
     def __join_chans(self, channels):
-        self.send('JOIN %s' % ','.join(channels))
+        if channels:
+            self.send('JOIN %s' % ','.join(channels))
 
     def __nick(self, prefix, params):
         """
