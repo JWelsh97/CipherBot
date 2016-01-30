@@ -216,7 +216,7 @@ class IRC(object):
             self.user_joined(self.__get_nick(prefix).decode(self.encoding),
                              message.decode(self.encoding))
 
-    def __mode(self, prefix, params):
+    def __mode(self, prefix, params, message):
         """
         MODE event handler
         :param prefix: User
@@ -230,7 +230,11 @@ class IRC(object):
             self.channel_mode(source, channel, mode, target)
         else:
             target = params[0].decode(self.encoding)
-            mode = [x for x in params[1].decode(self.encoding)]
+            if len(params) > 1:
+                mode = [x for x in params[1].decode(self.encoding)]
+            else:
+                mode = [x for x in message.decode(self.encoding)]
+
             self.user_mode(source, target, mode)
 
     def __user_count(self, message):
