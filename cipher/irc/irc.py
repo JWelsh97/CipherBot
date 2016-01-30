@@ -1,9 +1,10 @@
-import tornado
-import tornado.iostream
+import inspect
 import socket
 import ssl
-import inspect
 import re
+import tornado
+import tornado.iostream
+from tornado.ioloop import IOLoop
 
 
 class IRC(object):
@@ -203,12 +204,17 @@ class IRC(object):
 
     def __join(self, prefix, message):
         """
-        JOIN event hanlder
+        JOIN event handler
         :param prefix: User
         :param message: Channel
         """
-        self.user_joined(self.__get_nick(prefix).decode(self.encoding),
-                         message.decode(self.encoding))
+        # Sometimes the channel ends up in params because the server
+        # doesn't send a : after the JOIN command. This appears to only
+        # happen when a user is changing vhosts so there is no reason to
+        # resend the JOIN message down stream.
+        if message:
+            self.user_joined(self.__get_nick(prefix).decode(self.encoding),
+                             message.decode(self.encoding))
 
     def __mode(self, prefix, params):
         """
@@ -272,8 +278,7 @@ class IRC(object):
         self.__send_auth()
 
     def __join_chans(self, channels):
-        for channel in channels:
-            self.send('JOIN %s' % channel)
+        self.send('JOIN %s' % ','.join(channels))
 
     def __nick(self, prefix, params):
         """
@@ -311,7 +316,7 @@ class IRC(object):
         Connection closed event
         :param data: None
         """
-        pass
+        IOLoop.current().stop()
 
     def motd(self, message):
         """

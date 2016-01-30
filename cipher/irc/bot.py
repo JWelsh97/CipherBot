@@ -2,22 +2,22 @@ import ssl
 from plugins import plugins
 from .event import Events
 from .irc import IRC
+from cipher import db
 
 
 class Bot(IRC):
     def __init__(self, host: str, port: int, nickname: list, password: str, channels: list, op_pass: str,
                  enable_ssl: bool=False, ssl_options: ssl.SSLContext=None,
-                 encoding: str='utf-8'):
+                 encoding: str='utf-8', db_config=None):
         super().__init__(host, port, nickname, password, channels, op_pass, enable_ssl, ssl_options, encoding)
+        if db_config:
+            db.connect(db_config)
         self.plugins = []
         self.__load_plugins()
         self.users = {}
 
     def motd(self, message):
         print(message)
-
-    def ping(self, server1, server2):
-        print('PONG %s' % server1)
 
     def notice(self, prefix, params, message):
         print('%s: %s' % (prefix, message))
@@ -45,17 +45,12 @@ class Bot(IRC):
         Events.part.notify(user, channel, message)
 
     def user_joined(self, user, channel):
-        self.users[user] = {}
-        self.users[user][channel] = ''
-
+        self.__add_user(user, channel)
         print('%s joined %s' % (user, channel))
         Events.join.notify(user, channel)
 
     def channel_mode(self, source, channel, mode, target):
-        if channel not in self.users[target]:
-            self.users[target][channel] = ''
-            print('Added %s to %s' % (target, channel))
-
+        self.__add_user(target, channel)
         if mode[0] == '-':
             for m in mode[1:]:
                 self.users[target][channel] = self.users[target][channel].replace(m, '')
@@ -86,7 +81,19 @@ class Bot(IRC):
 
     def quit(self, nickname):
         del(self.users[nickname])
+        print('User %s QUIT' % nickname)
         Events.quit.notify(nickname)
+
+    def closed(self, data):
+        db.disconnect()
+        super().closed(data)
+
+    def __add_user(self, user, channel):
+        if user not in self.users:
+            self.users[user] = {}
+
+        if channel not in self.users[user]:
+            self.users[user][channel] = ''
 
     def __load_plugins(self):
         for name, plugin in plugins:
