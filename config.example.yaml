@@ -2,6 +2,16 @@ bot:
   host: 'affinity.pw'
   port: 6697
   nickname: ['Cipher', 'Cipher_', 'Cipher__']
-  password:
-  channels: ['#example']
+  password: 'ZWce2@NnCGtCZO'
+  channels: ['#tgif']
   enable_ssl: True
+
+db:
+  host: 'localhost'
+  user: 'root'
+  port: 3306
+  password:
+  db: 'gazelle'
+  max_connections: 20
+  idle_seconds: 7200
+  autocommit: True
