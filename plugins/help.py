@@ -5,10 +5,7 @@ class Help(Plugin):
     def __init__(self, irc):
         super().__init__(irc)
         self.nickname = self.irc.nicks[0]
-        Events.privmsg += self.next
-        Events.privmsg += self.done
-        Events.privmsg += self.idler
-        Events.privmsg += self.help
+        Events.privmsg += [self.next, self.done, self.idler, self.help]
         Events.join += self.on_join
         Events.part += self.on_part
         Events.quit += self.quit
@@ -23,7 +20,6 @@ class Help(Plugin):
                     if self.__wait_queue:
                         data = 'MODE #help +v %s' % self.__wait_queue.pop(0)
                         self.irc.send(data)
-                        print(self.__wait_queue)
 
     def done(self, source: str, target: str, message: str):
         if not target.startswith('#'):
@@ -54,7 +50,6 @@ class Help(Plugin):
                     data = 'KICK #help %s %s' % (user, "There is no idling in this channel, if and when \
                            you come back, be sure to join #help again")
                     self.irc.send(data)
-                    print(self.__wait_queue)
                 else:
                     return
 
@@ -83,7 +78,6 @@ class Help(Plugin):
                     self.send_notice(user, "Please wait to be voiced, \
                                            then you will be seen to.")
                     self.__wait_queue.append(user)
-                    print(self.__wait_queue)
 
     def on_part(self, user, channel, message):
         if channel == '#help':

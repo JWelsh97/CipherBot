@@ -3,7 +3,10 @@ class Event(object):
         self.__handlers = []
 
     def __iadd__(self, other):
-        self.__handlers.append(other)
+        if isinstance(other, list):
+            self.__handlers += other
+        else:
+            self.__handlers.append(other)
         return self
 
     def append(self, other):
