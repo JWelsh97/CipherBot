@@ -26,18 +26,17 @@ class GetUser(Plugin):
             data = yield execute("SELECT Username,Uploaded,Downloaded FROM users_main WHERE Username = %s", username)
             if data:
                 username, upload, download = data[0][:3]
-                if 'uploaded' not in paranoia:
+                if paranoia is not None and 'uploaded' not in paranoia:
                     ul, ul_abbr = self.convert_type(upload)
                 else:
                     ul = 'PRIVATE'
                     ul_abbr = ''
 
-                if 'downloaded' not in paranoia:
+                if paranoia is not None and 'downloaded' not in paranoia:
                     dl, dl_abbr = self.convert_type(download)
                 else:
                     dl = 'PRIVATE'
                     dl_abbr = ''
-
                 self.send_msg(target, '%s - U: \x0304%s\x0F %s - D: \x0304%s\x0F %s' %
                               (username, ul, ul_abbr, dl, dl_abbr))
             else:
