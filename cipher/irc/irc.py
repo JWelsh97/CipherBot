@@ -117,7 +117,7 @@ class IRC(object):
         if self.pwd:
             self.send('PRIVMSG nickserv IDENTIFY %s' % self.pwd)
         if self.oper_pass:
-            self.send('OPER %s %s' % (self.oper_pass, self.nicks[0]))
+            self.send('OPER %s %s' % (self.nicks[0], self.oper_pass))
             self.send('PRIVMSG operserv login %s' % self.oper_pass)
 
     def __set_nick(self):
