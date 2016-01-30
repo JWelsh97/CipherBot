@@ -2,20 +2,25 @@ from tornado import gen
 import tormysql
 
 
-pool = tormysql.ConnectionPool(
-    autocommit=True,
-    max_connections=20,
-    idle_seconds=7200,
-    host='',
-    user='',
-    passwd='',
-    db='',
-    port=3306
-)
+pool = None
+
+
+def connect(config):
+    global pool
+    pool = tormysql.ConnectionPool(**config)
+
+
+def disconnect():
+    pool.close()
+
+
+@property
+def connected():
+    return pool.closed()
 
 
 @gen.coroutine
-def fetch(sql, args=None):
+def execute(sql, args=None):
     with (yield pool.Connection()) as conn:
         with conn.cursor() as cursor:
             if args:

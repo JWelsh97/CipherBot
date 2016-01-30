@@ -12,6 +12,16 @@ def read_config():
             'nickname': ['Cipher', 'Cipher_', 'Cipher__'],
             'password': '',
             'enable_ssl': True
+        },
+        'db': {
+            'host': 'localhost',
+            'user': 'root',
+            'port': 3306,
+            'password': '',
+            'db': 'gazelle',
+            'max_connections': 20,
+            'idle_seconds': 7200,
+            'autocommit': True
         }
     }
 

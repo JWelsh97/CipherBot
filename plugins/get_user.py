@@ -1,7 +1,6 @@
 from cipher.irc import Plugin, Events
-from cipher.db import fetch
+from cipher.db import execute
 from tornado import gen
-import json
 
 
 class GetUser(Plugin):
@@ -20,11 +19,11 @@ class GetUser(Plugin):
                 return
 
             username = message[1]
-            paranoia = yield fetch('SELECT Paranoia FROM users_main WHERE Username = %s', username)
+            paranoia = yield execute('SELECT Paranoia FROM users_main WHERE Username = %s', username)
             if paranoia:
                 paranoia = paranoia[0][0]
 
-            data = yield fetch("SELECT Username,Uploaded,Downloaded FROM users_main WHERE Username = %s", username)
+            data = yield execute("SELECT Username,Uploaded,Downloaded FROM users_main WHERE Username = %s", username)
             if data:
                 username, upload, download = data[0][:3]
                 if 'uploaded' not in paranoia:

@@ -2,13 +2,16 @@ import ssl
 from plugins import plugins
 from .event import Events
 from .irc import IRC
+from cipher import db
 
 
 class Bot(IRC):
     def __init__(self, host: str, port: int, nickname: list, password: str, channels: list,
                  enable_ssl: bool=False, ssl_options: ssl.SSLContext=None,
-                 encoding: str='utf-8'):
+                 encoding: str='utf-8', db_config=None):
         super().__init__(host, port, nickname, password, channels, enable_ssl, ssl_options, encoding)
+        if db_config:
+            db.connect(db_config)
         self.plugins = []
         self.__load_plugins()
         self.users = {}
@@ -76,6 +79,10 @@ class Bot(IRC):
                 self.users[user] = {}
             self.users[user][channel] = modes[mode]
         print('%s: %s' % (channel, ', '.join(users)))
+
+    def closed(self, data):
+        db.disconnect()
+        super().closed(data)
 
     def __load_plugins(self):
         for name, plugin in plugins:
