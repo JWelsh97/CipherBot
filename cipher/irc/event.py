@@ -25,5 +25,4 @@ class Events:
     part = Event()
     privmsg = Event()
     quit = Event()
-    kick = Event()
-
+    mode_change = Event()

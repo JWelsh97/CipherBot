@@ -56,6 +56,7 @@ class Bot(IRC):
                 self.users[target][channel] = self.users[target][channel].replace(m, '')
         else:
             self.users[target][channel] += mode[1:]
+        Events.mode_change.notify(channel, "".join(mode), target)
         print('Mode %s [%s %s] by %s' % (channel, ''.join(mode), target, source))
 
     def user_mode(self, source, target, mode):
@@ -79,10 +80,10 @@ class Bot(IRC):
     def nick_changed(self, old_nick, new_nick):
         self.users[new_nick] = self.users.pop(old_nick)
 
-    def quit(self, nickname):
-        del(self.users[nickname])
-        print('User %s QUIT' % nickname)
-        Events.quit.notify(nickname)
+    def quit(self, user):
+        del(self.users[user])
+        print('User %s QUIT' % user)
+        Events.quit.notify(user)
 
     def closed(self, data):
         db.disconnect()
@@ -90,7 +91,6 @@ class Bot(IRC):
 
     def kick(self, channel, kicked_user):
         print('User %s kicked from %s' % (kicked_user, channel))
-        Events.notify.kick(channel, kicked_user)
 
     def __add_user(self, user, channel):
         if user not in self.users:
