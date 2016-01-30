@@ -39,6 +39,7 @@ class IRC(object):
             b'MODE': self.__mode,
             b'NICK': self.__nick,
             b'QUIT': self.__quit,
+            b'KICK': self.__kick,
             b'001': self.__welcome,
             b'251': self.__user_count,
             b'252': self.__op_count,
@@ -302,6 +303,15 @@ class IRC(object):
         prefix = prefix.decode(self.encoding).split('!')[0]
         self.quit(prefix)
 
+    def __kick(self, params):
+        """
+        Command KICK event handler
+        :param params: Contains the channel and the kicked user.
+        """
+        channel = params[0].decode(self.encoding)
+        kicked_user = params[1].decode(self.encoding)
+        self.kick(channel, kicked_user)
+
     def send(self, data: str):
         """
         Write to stream
@@ -444,5 +454,13 @@ class IRC(object):
         """
         Command QUIT event handler
         :param nickname:  quitter's nickname
+        """
+        pass
+
+    def kick(self, channel, kicked_user):
+        """
+        COmmand KICK event handler
+        :param channel: Channel that the user was kicked from
+        :param kicked_user: The user that was kicked
         """
         pass

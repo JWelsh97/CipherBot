@@ -88,6 +88,9 @@ class Bot(IRC):
         db.disconnect()
         super().closed(data)
 
+    def kick(self, channel, kicked_user):
+        print('User %s kicked from %s' % (kicked_user, channel))
+
     def __add_user(self, user, channel):
         if user not in self.users:
             self.users[user] = {}
