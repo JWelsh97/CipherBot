@@ -33,7 +33,7 @@ class Plugin(object):
         else:
             return ''
 
-    def quit(self, nickname):
+    def quit(self, user):
         pass
 
     def send_notice(self, target: str, message: str):

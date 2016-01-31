@@ -2,8 +2,9 @@ bot:
   host: 'affinity.pw'
   port: 6697
   nickname: ['Cipher', 'Cipher_', 'Cipher__']
-  password: 'ZWce2@NnCGtCZO'
-  channels: ['#tgif']
+  password:
+  channels: ['#example']
+  op_pass: '' #Oper pass here
   enable_ssl: True
 
 db:

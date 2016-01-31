@@ -11,6 +11,7 @@ def read_config():
             'port': 6697,
             'nickname': ['Cipher', 'Cipher_', 'Cipher__'],
             'password': '',
+            'op_pass': '',
             'enable_ssl': True
         },
         'db': {

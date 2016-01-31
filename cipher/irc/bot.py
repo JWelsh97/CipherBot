@@ -6,10 +6,10 @@ from cipher import db
 
 
 class Bot(IRC):
-    def __init__(self, host: str, port: int, nickname: list, password: str, channels: list,
+    def __init__(self, host: str, port: int, nickname: list, password: str, channels: list, op_pass: str,
                  enable_ssl: bool=False, ssl_options: ssl.SSLContext=None,
                  encoding: str='utf-8', db_config=None):
-        super().__init__(host, port, nickname, password, channels, enable_ssl, ssl_options, encoding)
+        super().__init__(host, port, nickname, password, channels, op_pass, enable_ssl, ssl_options, encoding)
         if db_config:
             db.connect(db_config)
         self.plugins = []
@@ -56,6 +56,7 @@ class Bot(IRC):
                 self.users[target][channel] = self.users[target][channel].replace(m, '')
         else:
             self.users[target][channel] += mode[1:]
+        Events.mode_change.notify(channel, "".join(mode), target)
         print('Mode %s [%s %s] by %s' % (channel, ''.join(mode), target, source))
 
     def user_mode(self, source, target, mode):
@@ -79,10 +80,13 @@ class Bot(IRC):
     def nick_changed(self, old_nick, new_nick):
         self.users[new_nick] = self.users.pop(old_nick)
 
-    def quit(self, nickname):
-        del(self.users[nickname])
-        print('User %s QUIT' % nickname)
-        Events.quit.notify(nickname)
+    def quit(self, user):
+        del(self.users[user])
+        print('User %s QUIT' % user)
+        Events.quit.notify(user)
+
+    def kick(self, channel, kicked_user):
+        print('User %s kicked from %s' % (kicked_user, channel))
 
     def closed(self, data):
         db.disconnect()
