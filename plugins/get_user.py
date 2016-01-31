@@ -23,9 +23,9 @@ class GetUser(Plugin):
             if paranoia:
                 paranoia = paranoia[0][0]
 
-            data = yield execute("SELECT Username,Uploaded,Downloaded FROM users_main WHERE Username = %s", username)
+            data = yield execute("SELECT ID,Username,Uploaded,Downloaded FROM users_main WHERE Username = %s", username)
             if data:
-                username, upload, download = data[0][:3]
+                uid, username, upload, download = data[0][:4]
                 if paranoia is not None and 'uploaded' not in paranoia:
                     ul, ul_abbr = self.convert_type(upload)
                 else:
@@ -37,8 +37,9 @@ class GetUser(Plugin):
                 else:
                     dl = 'PRIVATE'
                     dl_abbr = ''
-                self.send_msg(target, '%s - U: \x0304%s\x0F %s - D: \x0304%s\x0F %s' %
-                              (username, ul, ul_abbr, dl, dl_abbr))
+                profile_link = 'http://theguildinternational.foundation/user.php?id='
+                self.send_msg(target, '%s - U: \x0304%s\x0F %s - D: \x0304%s\x0F %s Profile: \x0304%s%s\x0F' %
+                              (username, ul, ul_abbr, dl, dl_abbr, profile_link, uid))
             else:
                 self.send_msg(target, 'User not found.')
 
