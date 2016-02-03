@@ -1,4 +1,5 @@
 from cipher.irc import Plugin, Events
+from cipher.db import execute
 from tornado import gen
 
 
@@ -13,6 +14,7 @@ class Help(Plugin):
         Events.mode_change += self.mode_change
         self.__wait_queue = []
 
+    @gen.coroutine
     def next(self, source: str, target: str, message: str):
         if not target.startswith('#'):
             return
@@ -22,6 +24,9 @@ class Help(Plugin):
                     if self.__wait_queue:
                         data = 'MODE #help +v %s' % self.__wait_queue.pop(0)
                         self.irc.send(data)
+                        yield execute('INSERT INTO gazelle.bot_fls (Username, HelpCount, LastSeen) '
+                                      'VALUES(%s, 1, NOW()) ON DUPLICATE KEY '
+                                      'UPDATE HelpCount = HelpCount + 1, LastSeen = NOW()', source)
 
     def done(self, source: str, target: str, message: str):
         if not target.startswith('#'):
