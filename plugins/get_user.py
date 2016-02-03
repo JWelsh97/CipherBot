@@ -11,14 +11,15 @@ class GetUser(Plugin):
     @gen.coroutine
     def privmsg(self, source: str, target: str, message: str):
         if not target.startswith('#'):
-            target = source
+            return
 
         if message.startswith('!u'):
             message = message.split(' ')
-            if len(message) != 2:
-                return
+            if len(message) > 1:
+                username = message[1]
+            else:
+                username = source
 
-            username = message[1]
             paranoia = yield execute('SELECT Paranoia FROM users_main WHERE Username = %s', username)
             if paranoia:
                 paranoia = paranoia[0][0]
