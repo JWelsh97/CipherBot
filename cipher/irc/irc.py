@@ -88,6 +88,8 @@ class IRC(object):
                 if line.startswith(b':'):
                     idx = line.find(b' ')
                     prefix = line[1:idx]
+                else:
+                    idx = 0
 
                 irc_msg = line[idx+1 if idx > 0 else idx:].split(b' :')
                 message = b''.join(irc_msg[1:]).strip()
