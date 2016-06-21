@@ -7,5 +7,6 @@ Help queue and general IRC bot
 * PyYaml >= 3.11
 
 ## Installation
-    git clone git@gitlab.ratsfor.me:TGIF/Cipher.git
+    git clone https://github.com/Xeronel/CipherBot.git Cipher
+    cd Cipher
     pip install -r requirements.txt
